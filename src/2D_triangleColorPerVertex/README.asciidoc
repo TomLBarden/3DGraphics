@@ -1,0 +1,104 @@
+== 2D Triangle Color Per Vertex
+:toc:
+:!numbered:
+
+=== Summary
+
+This example renders a single triangle with different colors for each vertex, on a red background every frame. The vertex colors are interpolated across the triangle by the rasterizer.
+
+==== Fragment Shader
+The color of fragments is determined by the Fragment Shader. In order to color are triangle as above we need more information coming in to the fragment shader - we want to pass in the color for each fragment. Input variables are passed to the Fragment Shader from the Rasteriser, which creates them from Output variables from the previous stage, which is usually the Vertex Shader. The Rasterizer, by default, interpolates these variables across the surface of the primitive, though this can be disabled if required.
+
+Let's update our Fragment Shader to this effect
+
+//highlighting as C
+[source, c]
+----
+include::main.cpp[tags=fragmentShader]
+----
+
+==== Vertex Shader
+
+This means that we need to output more information from the Vertex Shader. This is done with an output variable, which *MUST* have the same *name* and *signature* as the input variable to the Fragment Shader - except `in` should be `out`.
+
+Our Vertex Shader could now look as follows. We'll hardcode the output variable for now. Let's use just Blue, to make it clear this is working.
+
+//highlighting as C
+[source, c]
+----
+#version 330
+in vec2 position;
+out vec4 fragmentColor;
+void main()
+{
+     gl_Position = vec4(position, 0.0, 1.0);
+     fragmentColor = vec4(0.0, 0.0, 1.0, 1.0);
+}
+----
+
+Next we need to pass more information into the Vertex Shader. Uniform variables as we've used before are the same for all vertices, we need to have different color values for each vertex, just like we have different position values. This is what *Attributes* do.
+
+Let's add that to our Vertex Shader, and pass that incoming value onwards.
+
+//highlighting as C
+[source, c]
+----
+include::main.cpp[tags=vertexShader     ]
+----
+
+==== Vertex Data
+
+That was easy enough, but if you run it you'll notice that the triangle is now Black. That's because the incoming attribute `vertexColor` hasn't been set by *our* pass:[C++] program, so it is at its default values ({0.0, 0.0, 0.0, 0.0} for a vec4). We'll change our pass:[C++] program next to provide this information.
+
+The first thing we need, if the color information in our pass:[C++] program. There are many ways of doing this, and most of those we can work with in providing to OpenGL. There are three main approaches:
+. have an array for position and another array for color
+. have a single array for both, with all the positions data, then all the color data
+. have a single array for both, with all the information for each vertex together, then the next vertex. We'll take this approached. This is called *INTERLEAVING* - the color information is interleaved with the position information.
+
+Our variable vertexData will now look like this:
+
+.vertexData
+[source, c++]
+----
+include::main.cpp[tags=vertexData]
+----
+
+==== Attribute location
+
+Everything we've been doing for the position attribute we also need to do for the color attribute.
+
+We need to have a `GLint` to store in C++ the location of the `vertexColor` attribute in our GLSL.
+
+.GLVariables
+[source, c++]
+----
+include::main.cpp[tags=GLVariables]
+----
+
+We need to ask OpenGL for that location once we've compiled and linked our GLSL.
+
+.initializeProgram
+[source, c++]
+----
+include::main.cpp[tags=initializeProgram]
+----
+
+==== glVertexAttribPointer
+
+We need to tell OpenGL to use that location, and how to fill it from the buffer object. VertexArray objects store this information, which we then use when we render. This change is pretty important. Look up the specification for `glVertexAttribPointer`, and figure out what each parameter is doing.
+
+.initializeVertexArrayObject
+[source, c++]
+----
+include::main.cpp[tags=initializeVertexArrayObject]
+----
+
+==== Render
+
+Finally, our Render function is still the same. We've removed the uniform variable for color, so nothing is, at this point, changing between frames. Later, we could add some new, useful, uniform variables.
+
+.render
+[source, c++]
+----
+include::main.cpp[tags=render]
+----
