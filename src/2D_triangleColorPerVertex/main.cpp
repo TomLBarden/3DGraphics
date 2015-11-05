@@ -34,9 +34,6 @@ int frameCount = 0;
 std::string frameLine = "";
 // end::globalVariables[]
 
-bool wDown = false;
-bool sDown = false;
-
 // tag::vertexShader[]
 //string holding the **source** of our vertex shader, to save loading from a file
 const std::string strVertexShader = R"(
@@ -69,10 +66,14 @@ const std::string strFragmentShader = R"(
 
 //our variables
 bool done = false;
+bool wDown = false;
+bool sDown = false;
+bool upArrowDown = false;
+bool downArrowDown = false;
 
 // tag::vertexData[]
 //the data about our geometry
-const GLfloat vertexData[] = {
+const GLfloat vertexDataLeftPaddle[] = {
 	// X        Y        R     G     B      A
 	-0.355f,  0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
 	-0.375f, 0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
@@ -83,10 +84,21 @@ const GLfloat vertexData[] = {
 	-0.375f, 0.000f,   1.0f, 1.0f, 1.0f,  1.0f
 };
 // end::vertexData[]
+const GLfloat vertexDataRightPaddle[] = {
+	// X        Y        R     G     B      A
+	 -0.255f,  0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
+	 -0.275f, 0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
+	 -0.255f,  0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
+
+	 -0.255f,  0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
+	 -0.275f, 0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
+	 -0.275f, 0.000f,   1.0f, 1.0f, 1.0f,  1.0f
+};
 
 //the color we'll pass to the GLSL
 GLfloat color[] = { 1.0f, 1.0f, 1.0f }; //using different values from CPU and static GLSL examples, to make it clear this is working
-GLfloat offset[] = { -0.5f, -0.5f };
+GLfloat leftPaddleOffset[] = { -0.5f, -0.5f };
+GLfloat rightPaddleOffset[] = { -0.5f, -0.5f };
 
 // tag::GLVariables[]
 //our GL and GLSL variables
@@ -96,7 +108,9 @@ GLint vertexColorLocation; //GLuint that we'll fill in with the location of the 
 GLint offsetLocation;
 
 GLuint vertexDataBufferObject;
+GLuint vertexDataBufferObject2;
 GLuint vertexArrayObject;
+GLuint vertexArrayObject2;
 // end::GLVariables[]
 
 
@@ -298,6 +312,24 @@ void initializeVertexArrayObject()
 
 	glBindVertexArray(0); //unbind the vertexArrayObject so we can't change it
 
+
+	glGenVertexArrays(1, &vertexArrayObject2); //create a Vertex Array Object
+	cout << "Vertex Array Object created OK! GLUint is: " << vertexArrayObject2 << std::endl;
+
+	// Right Paddle
+
+	glBindVertexArray(vertexArrayObject2); //make the just created vertexArrayObject2 the active one
+
+	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObject2); //bind vertexDataBufferObject
+
+	glEnableVertexAttribArray(positionLocation); //enable attribute at index positionLocation
+	glEnableVertexAttribArray(vertexColorLocation); //enable attribute at index vertexColorLocation
+
+	glVertexAttribPointer(positionLocation, 2, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(0 * sizeof(GLfloat))); //specify that position data contains four floats per vertex, and goes into attribute index positionLocation
+	glVertexAttribPointer(vertexColorLocation, 4, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(2 * sizeof(GLfloat))); //specify that position data contains four floats per vertex, and goes into attribute index positionLocation
+
+	glBindVertexArray(0); //unbind the vertexArrayObject2 so we can't change it
+
 						  //cleanup
 	glDisableVertexAttribArray(positionLocation); //disable vertex attribute at index positionLocation
 	glBindBuffer(GL_ARRAY_BUFFER, 0); //unbind array buffer
@@ -311,9 +343,17 @@ void initializeVertexBuffer()
 	glGenBuffers(1, &vertexDataBufferObject);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObject);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexDataLeftPaddle), vertexDataLeftPaddle, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	cout << "vertexDataBufferObject created OK! GLUint is: " << vertexDataBufferObject << std::endl;
+
+
+	glGenBuffers(1, &vertexDataBufferObject2);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObject2);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexDataRightPaddle), vertexDataRightPaddle, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	cout << "vertexDataBufferObject2 created OK! GLUint is: " << vertexDataBufferObject2 << std::endl;
 
 	initializeVertexArrayObject();
 }
@@ -373,6 +413,12 @@ void handleInput()
 			case SDLK_s:
 				sDown = true;
 				break;
+			case SDLK_UP:
+				upArrowDown = true;
+				break;
+			case SDLK_DOWN:
+				downArrowDown = true;
+				break;
 			}
 			break;
 		case SDL_KEYUP:
@@ -389,6 +435,12 @@ void handleInput()
 			case SDLK_s:
 				sDown = false;
 				break;
+			case SDLK_UP:
+				upArrowDown = false;
+				break;
+			case SDLK_DOWN:
+				downArrowDown = false;
+				break;
 			}
 			break;
 		}
@@ -403,13 +455,22 @@ void updateSimulation(double simLength = 0.02) //update simulation with an amoun
 	// see, for example, http://headerphile.blogspot.co.uk/2014/07/part-9-no-more-delays.html
 	//CHANGE ME
 
-	if (wDown && offset[1] < 0.66f)
+	if (wDown && leftPaddleOffset[1] < 0.66f)
 	{
-		offset[1] += 0.025f;
+		leftPaddleOffset[1] += 0.025f;
 	}
-	else if (sDown && offset[1] > -0.95f)
+	else if (sDown && leftPaddleOffset[1] > -0.95f)
 	{
-		offset[1] -= 0.025f;
+		leftPaddleOffset[1] -= 0.025f;
+	}
+
+	if (upArrowDown && rightPaddleOffset[1] < 0.66f)
+	{
+		rightPaddleOffset[1] += 0.025f;
+	}
+	else if (downArrowDown && rightPaddleOffset[1] > -0.95f)
+	{
+		rightPaddleOffset[1] -= 0.025f;
 	}
 }
 // end::updateSimulation[]
@@ -428,10 +489,22 @@ void render()
 {
 	glUseProgram(theProgram); //installs the program object specified by program as part of current rendering state
 
-	glUniform2f(offsetLocation, offset[0], offset[1]);
+	glUniform2f(offsetLocation, leftPaddleOffset[0], leftPaddleOffset[1]);
 	//load data to GLSL that **may** have changed
 
 	glBindVertexArray(vertexArrayObject);
+
+	glDrawArrays(GL_TRIANGLES, 0, 6); //Draw something, using Triangles, and 3 vertices - i.e. one lonely triangle
+
+
+	glBindVertexArray(0);
+
+
+
+	glUniform2f(offsetLocation, rightPaddleOffset[0], rightPaddleOffset[1]);
+	//load data to GLSL that **may** have changed
+
+	glBindVertexArray(vertexArrayObject2);
 
 	glDrawArrays(GL_TRIANGLES, 0, 6); //Draw something, using Triangles, and 3 vertices - i.e. one lonely triangle
 

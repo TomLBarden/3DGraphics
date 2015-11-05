@@ -64,7 +64,7 @@ const std::string strFragmentShader = R"(
 bool done = false;
 
 //the data about our geometry
-const GLfloat vertexData[] = {
+const GLfloat vertexDataLeftPaddle[] = {
 //	X			Y
 	 0.000f,	0.500f,
 	-0.433f,	-0.250f,
@@ -293,7 +293,7 @@ void initializeVertexBuffer()
 	glGenBuffers(1, &vertexDataBufferObject);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObject);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexDataLeftPaddle), vertexDataLeftPaddle, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	cout << "vertexDataBufferObject created OK! GLUint is: " << vertexDataBufferObject << std::endl;
 
