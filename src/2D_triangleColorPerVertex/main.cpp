@@ -64,8 +64,9 @@ const std::string strFragmentShader = R"(
 )";
 // end::fragmentShader[]
 
-//our variables
+//my variables
 bool done = false;
+bool ballMovingLeft = true;
 bool wDown = false;
 bool sDown = false;
 bool upArrowDown = false;
@@ -86,13 +87,23 @@ const GLfloat vertexDataLeftPaddle[] = {
 // end::vertexData[]
 const GLfloat vertexDataRightPaddle[] = {
 	// X        Y        R     G     B      A
-	 -0.255f,  0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
-	 -0.275f, 0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
-	 -0.255f,  0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
+	 1.355f,  0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
+	 1.375f, 0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
+     1.365f,  0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
 
-	 -0.255f,  0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
-	 -0.275f, 0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
-	 -0.275f, 0.000f,   1.0f, 1.0f, 1.0f,  1.0f
+	 1.355f,  0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
+	 1.375f, 0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
+	 1.375f, 0.000f,   1.0f, 1.0f, 1.0f,  1.0f
+};
+const GLfloat vertexDataBall[] = {
+	// X        Y        R     G     B      A
+	0.300f,  0.195f,   1.0f, 1.0f, 1.0f,  1.0f,
+	0.250f, 0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
+	0.350f,  0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
+
+	0.300f, -0.065f,   1.0f, 1.0f, 1.0f,  1.0f,
+	0.250f, 0.121f,   1.0f, 1.0f, 1.0f,  1.0f,
+	0.350f, 0.121f,   1.0f, 1.0f, 1.0f,  1.0f
 };
 
 //the color we'll pass to the GLSL
@@ -101,7 +112,7 @@ GLfloat leftPaddleOffset[] = { -0.5f, -0.5f };
 GLfloat rightPaddleOffset[] = { -0.5f, -0.5f };
 
 // tag::GLVariables[]
-//our GL and GLSL variables
+//my GL and GLSL variables
 GLuint theProgram; //GLuint that we'll fill in to refer to the GLSL program (only have 1 at this point)
 GLint positionLocation; //GLuint that we'll fill in with the location of the `position` attribute in the GLSL
 GLint vertexColorLocation; //GLuint that we'll fill in with the location of the `vertexColor` attribute in the GLSL
@@ -109,8 +120,10 @@ GLint offsetLocation;
 
 GLuint vertexDataBufferObject;
 GLuint vertexDataBufferObject2;
+GLuint vertexDataBufferObjectBall;
 GLuint vertexArrayObject;
 GLuint vertexArrayObject2;
+GLuint vertexArrayObjectBall;
 // end::GLVariables[]
 
 
@@ -297,40 +310,47 @@ void initializeProgram()
 //setup a GL object (a VertexArrayObject) that stores how to access data and from where
 void initializeVertexArrayObject()
 {
+	// Left Paddle
+
 	glGenVertexArrays(1, &vertexArrayObject); //create a Vertex Array Object
 	cout << "Vertex Array Object created OK! GLUint is: " << vertexArrayObject << std::endl;
 
 	glBindVertexArray(vertexArrayObject); //make the just created vertexArrayObject the active one
-
 	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObject); //bind vertexDataBufferObject
-
 	glEnableVertexAttribArray(positionLocation); //enable attribute at index positionLocation
 	glEnableVertexAttribArray(vertexColorLocation); //enable attribute at index vertexColorLocation
-
 	glVertexAttribPointer(positionLocation, 2, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(0 * sizeof(GLfloat))); //specify that position data contains four floats per vertex, and goes into attribute index positionLocation
 	glVertexAttribPointer(vertexColorLocation, 4, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(2 * sizeof(GLfloat))); //specify that position data contains four floats per vertex, and goes into attribute index positionLocation
-
 	glBindVertexArray(0); //unbind the vertexArrayObject so we can't change it
 
+	// Right Paddle
 
 	glGenVertexArrays(1, &vertexArrayObject2); //create a Vertex Array Object
 	cout << "Vertex Array Object created OK! GLUint is: " << vertexArrayObject2 << std::endl;
 
-	// Right Paddle
-
 	glBindVertexArray(vertexArrayObject2); //make the just created vertexArrayObject2 the active one
-
 	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObject2); //bind vertexDataBufferObject
-
 	glEnableVertexAttribArray(positionLocation); //enable attribute at index positionLocation
 	glEnableVertexAttribArray(vertexColorLocation); //enable attribute at index vertexColorLocation
-
 	glVertexAttribPointer(positionLocation, 2, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(0 * sizeof(GLfloat))); //specify that position data contains four floats per vertex, and goes into attribute index positionLocation
 	glVertexAttribPointer(vertexColorLocation, 4, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(2 * sizeof(GLfloat))); //specify that position data contains four floats per vertex, and goes into attribute index positionLocation
-
 	glBindVertexArray(0); //unbind the vertexArrayObject2 so we can't change it
 
-						  //cleanup
+	// Ball
+
+	glGenVertexArrays(1, &vertexArrayObjectBall); //create a Vertex Array Object
+	cout << "Vertex Array Object created OK! GLUint is: " << vertexArrayObjectBall << std::endl;
+
+	glBindVertexArray(vertexArrayObjectBall); //make the just created vertexArrayObject2 the active one
+	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObjectBall); //bind vertexDataBufferObject
+	glEnableVertexAttribArray(positionLocation); //enable attribute at index positionLocation
+	glEnableVertexAttribArray(vertexColorLocation); //enable attribute at index vertexColorLocation
+	glVertexAttribPointer(positionLocation, 2, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(0 * sizeof(GLfloat))); //specify that position data contains four floats per vertex, and goes into attribute index positionLocation
+	glVertexAttribPointer(vertexColorLocation, 4, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(2 * sizeof(GLfloat))); //specify that position data contains four floats per vertex, and goes into attribute index positionLocation
+	glBindVertexArray(0); //unbind the vertexArrayObject2 so we can't change it
+
+	// Cleanup
+
 	glDisableVertexAttribArray(positionLocation); //disable vertex attribute at index positionLocation
 	glBindBuffer(GL_ARRAY_BUFFER, 0); //unbind array buffer
 
@@ -340,6 +360,7 @@ void initializeVertexArrayObject()
 // tag::initializeVertexBuffer[]
 void initializeVertexBuffer()
 {
+	// Left Paddle
 	glGenBuffers(1, &vertexDataBufferObject);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObject);
@@ -347,13 +368,21 @@ void initializeVertexBuffer()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	cout << "vertexDataBufferObject created OK! GLUint is: " << vertexDataBufferObject << std::endl;
 
-
+	// Right Paddle
 	glGenBuffers(1, &vertexDataBufferObject2);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObject2);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexDataRightPaddle), vertexDataRightPaddle, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	cout << "vertexDataBufferObject2 created OK! GLUint is: " << vertexDataBufferObject2 << std::endl;
+
+	// Ball
+	glGenBuffers(1, &vertexDataBufferObjectBall);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObjectBall);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexDataBall), vertexDataBall, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	cout << "vertexDataBufferObjectBall created OK! GLUint is: " << vertexDataBufferObjectBall << std::endl;
 
 	initializeVertexArrayObject();
 }
@@ -479,7 +508,7 @@ void updateSimulation(double simLength = 0.02) //update simulation with an amoun
 void preRender()
 {
 	glViewport(0, 0, 1000, 600); //set viewpoint
-	glClearColor(1.0f, 0.0f, 0.0f, 1.0f); //set clear colour
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); //set clear colour
 	glClear(GL_COLOR_BUFFER_BIT); //clear the window (technical the scissor box bounds)
 }
 // end::preRender[]
@@ -489,26 +518,22 @@ void render()
 {
 	glUseProgram(theProgram); //installs the program object specified by program as part of current rendering state
 
+	// Left Paddle
 	glUniform2f(offsetLocation, leftPaddleOffset[0], leftPaddleOffset[1]);
-	//load data to GLSL that **may** have changed
-
 	glBindVertexArray(vertexArrayObject);
-
-	glDrawArrays(GL_TRIANGLES, 0, 6); //Draw something, using Triangles, and 3 vertices - i.e. one lonely triangle
-
-
+	glDrawArrays(GL_TRIANGLES, 0, 6); 
 	glBindVertexArray(0);
 
-
-
+	// Right Paddle
 	glUniform2f(offsetLocation, rightPaddleOffset[0], rightPaddleOffset[1]);
-	//load data to GLSL that **may** have changed
-
 	glBindVertexArray(vertexArrayObject2);
+	glDrawArrays(GL_TRIANGLES, 0, 6); 
+	glBindVertexArray(0);
 
-	glDrawArrays(GL_TRIANGLES, 0, 6); //Draw something, using Triangles, and 3 vertices - i.e. one lonely triangle
-
-
+	// Ball
+	glUniform2f(offsetLocation, leftPaddleOffset[0], leftPaddleOffset[1]);
+	glBindVertexArray(vertexArrayObjectBall);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glBindVertexArray(0);
 
 	glUseProgram(0); //clean up
