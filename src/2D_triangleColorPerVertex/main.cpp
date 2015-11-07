@@ -526,6 +526,7 @@ void BallWindowCollisions(float ballTop, float ballBottom, float ballRight, floa
 	}
 	else if (ballLeft <= -1.0f)
 	{
+		playerTwoScore++;
 		ResetBall();
 	}
 }
@@ -617,17 +618,10 @@ void preRender()
 }
 // end::preRender[]
 
-
-// Can I change this to also pass in a vertexDataArray and playerNumber to use this for both playerOne and playerTwo?
-void renderScoreMarkers(float index)
+void renderScoreMarker(float rightX, float leftX, float modifier)
 {
 	GLuint tempVertexDataBufferObject;
 	GLuint tempVertexArrayObject;
-
-	GLfloat leftX = -0.930f;
-	GLfloat rightX = -0.900f;
-	GLfloat modifier = (index + 3.00) / 10.00f;
-	//GLfloat modifier = index;
 
 	GLfloat vertexDataScoreMarker[] = {
 		// X                   Y        R     G     B      A
@@ -643,13 +637,10 @@ void renderScoreMarkers(float index)
 	glUniform2f(offsetLocation, 0, 0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, tempVertexDataBufferObject);
-	// CHANGE VERTEX DATA
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexDataScoreMarker), vertexDataScoreMarker, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	cout << "vertexDataBufferObject created OK! GLUint is: " << tempVertexDataBufferObject << std::endl;
 
 	glGenVertexArrays(1, &tempVertexArrayObject); //create a Vertex Array Object
-	cout << "Vertex Array Object created OK! GLUint is: " << tempVertexArrayObject << std::endl;
 
 	glBindVertexArray(tempVertexArrayObject); //make the just created vertexArrayObject2 the active one
 	glBindBuffer(GL_ARRAY_BUFFER, tempVertexDataBufferObject); //bind vertexDataBufferObject
@@ -665,6 +656,31 @@ void renderScoreMarkers(float index)
 	glBindVertexArray(tempVertexArrayObject);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindVertexArray(0);
+}
+
+// Can I change this to also pass in a vertexDataArray and playerNumber to use this for both playerOne and playerTwo?
+void renderScoreMarkers(float index, bool playerOneScored)
+{
+
+	float leftX;
+	float rightX;
+	float modifier;
+
+	if (playerOneScored)
+	{
+		leftX = -1.170f;
+		rightX = -1.140f;
+		modifier = ((index/2.00f) + 2.00) / 10.00f;
+	}
+	else
+	{
+		leftX = 1.170f;
+		rightX = 1.140f;
+		modifier = ((-index / 2.00f) - 2.00) / 10.00f;
+	}
+
+	renderScoreMarker(leftX, rightX, modifier);
+	
 }
 
 // tag::render[]
@@ -690,10 +706,15 @@ void render()
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindVertexArray(0);
 
-	// Render PlayerOne Score Markers
+	// Render Player One Score Markers
 	for (int i = 0; i < playerOneScore; i++)
 	{
-		renderScoreMarkers(i);
+		renderScoreMarkers(i, true);
+	}
+	// Render Player Two Score Markers
+	for (int i = 0; i < playerTwoScore; i++)
+	{
+		renderScoreMarkers(i, false);
 	}
 
 	glUseProgram(0); //clean up
