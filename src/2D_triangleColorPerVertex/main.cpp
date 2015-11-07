@@ -1,5 +1,6 @@
 // TODO - Optimise code
 //			- Score counter
+//				- Try and get this to work of off a single vertex matrix, duplicated and translated
 
 // tag::C++11check[]
 #define STRING2(x) #x
@@ -47,9 +48,9 @@ const std::string strVertexShader = R"(
 	uniform vec2 offset;
 	void main()
 	{
-		 vec2 tempPos = position + offset;
-		 gl_Position = vec4(tempPos, 0.0, 1.0);
-		 fragmentColor = vertexColor;
+		vec2 tempPos = position + offset;
+		gl_Position = vec4(tempPos, 0.0, 1.0);
+		fragmentColor = vertexColor;
 	}
 )";
 // end::vertexShader[]
@@ -77,6 +78,9 @@ bool downArrowDown = false;
 
 float ballIncrement = 0.005f;
 float ballYDirection = 0.000f;
+
+int playerOneScore = 0;
+int playerTwoScore = 0;
 
 // tag::vertexData[]
 //the data about our geometry
@@ -517,6 +521,7 @@ void BallWindowCollisions(float ballTop, float ballBottom, float ballRight, floa
 	// Back Walls (Opposing player scores a point)
 	if (ballRight >= 1.0f)
 	{
+		playerOneScore++;
 		ResetBall();
 	}
 	else if (ballLeft <= -1.0f)
@@ -612,6 +617,56 @@ void preRender()
 }
 // end::preRender[]
 
+
+// Can I change this to also pass in a vertexDataArray and playerNumber to use this for both playerOne and playerTwo?
+void renderScoreMarkers(float index)
+{
+	GLuint tempVertexDataBufferObject;
+	GLuint tempVertexArrayObject;
+
+	GLfloat leftX = -0.930f;
+	GLfloat rightX = -0.900f;
+	GLfloat modifier = (index + 3.00) / 10.00f;
+	//GLfloat modifier = index;
+
+	GLfloat vertexDataScoreMarker[] = {
+		// X                   Y        R     G     B      A
+		rightX + modifier,  0.950f,   1.0f, 1.0f, 1.0f,  1.0f,
+		rightX + modifier,  0.900f,   1.0f, 1.0f, 1.0f,  1.0f,
+		leftX + modifier,  0.950f,   1.0f, 1.0f, 1.0f,  1.0f,
+		leftX + modifier,  0.900f,   1.0f, 1.0f, 1.0f,  1.0f
+	};
+
+	glGenBuffers(1, &tempVertexDataBufferObject);
+
+	// Stops marker inheriting offset values
+	glUniform2f(offsetLocation, 0, 0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, tempVertexDataBufferObject);
+	// CHANGE VERTEX DATA
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexDataScoreMarker), vertexDataScoreMarker, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	cout << "vertexDataBufferObject created OK! GLUint is: " << tempVertexDataBufferObject << std::endl;
+
+	glGenVertexArrays(1, &tempVertexArrayObject); //create a Vertex Array Object
+	cout << "Vertex Array Object created OK! GLUint is: " << tempVertexArrayObject << std::endl;
+
+	glBindVertexArray(tempVertexArrayObject); //make the just created vertexArrayObject2 the active one
+	glBindBuffer(GL_ARRAY_BUFFER, tempVertexDataBufferObject); //bind vertexDataBufferObject
+	glEnableVertexAttribArray(positionLocation); //enable attribute at index positionLocation
+	glEnableVertexAttribArray(vertexColorLocation); //enable attribute at index vertexColorLocation
+	glVertexAttribPointer(positionLocation, 2, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(0 * sizeof(GLfloat))); //specify that position data contains four floats per vertex, and goes into attribute index positionLocation
+	glVertexAttribPointer(vertexColorLocation, 4, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(2 * sizeof(GLfloat))); //specify that position data contains four floats per vertex, and goes into attribute index positionLocation
+	glBindVertexArray(0); //unbind the vertexArrayObject2 so we can't change it
+
+	glDisableVertexAttribArray(positionLocation); //disable vertex attribute at index positionLocation
+	glBindBuffer(GL_ARRAY_BUFFER, 0); //unbind array buffer
+
+	glBindVertexArray(tempVertexArrayObject);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glBindVertexArray(0);
+}
+
 // tag::render[]
 void render()
 {
@@ -634,6 +689,12 @@ void render()
 	glBindVertexArray(vertexArrayObjectBall);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindVertexArray(0);
+
+	// Render PlayerOne Score Markers
+	for (int i = 0; i < playerOneScore; i++)
+	{
+		renderScoreMarkers(i);
+	}
 
 	glUseProgram(0); //clean up
 
