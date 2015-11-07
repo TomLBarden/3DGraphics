@@ -73,6 +73,7 @@ bool upArrowDown = false;
 bool downArrowDown = false;
 
 float ballIncrement = 0.005f;
+float ballYDirection = 0.000f;
 
 // tag::vertexData[]
 //the data about our geometry
@@ -488,36 +489,58 @@ void BallController()
 	float ball_rightXVertice = 0.030f + ballOffset[0];
 	float ball_topYVertice = 0.050f + ballOffset[1];
 	float ball_bottomYVertice = 0.000f + ballOffset[1];
+	float ball_midY = (ball_topYVertice + ball_bottomYVertice) / 2;
 
 	// Current left paddle vertice positions
 	float leftPaddle_leftXVertice = -0.875f + leftPaddleOffset[0];
 	float leftPaddle_rightXVertice = -0.855f + leftPaddleOffset[0];
 	float leftPaddle_topYVertice = 0.300f + leftPaddleOffset[1];
 	float leftPaddle_bottomYVertice = 0.000f + leftPaddleOffset[1];
+	float leftPaddle_midY = (leftPaddle_topYVertice + leftPaddle_bottomYVertice) / 2;
 
 	// Current right paddle vertice positions
 	float rightPaddle_leftXVertice = 0.855f + rightPaddleOffset[0];
 	float rightPaddle_rightXVertice = 0.875f + rightPaddleOffset[0];
 	float rightPaddle_topYVertice = 0.300f + rightPaddleOffset[1];
 	float rightPaddle_bottomYVertice = 0.000f + rightPaddleOffset[1];
+	float rightPaddle_midY = (rightPaddle_topYVertice + rightPaddle_bottomYVertice) / 2;
 
+	// Left/Right ball movement
+	// Bouncing off right paddle
 	if (ball_rightXVertice > rightPaddle_leftXVertice
 		&& ball_leftXVertice < rightPaddle_rightXVertice
 		&& ball_topYVertice > rightPaddle_bottomYVertice 
 		&& ball_bottomYVertice < rightPaddle_topYVertice)
 	{
+		ballIncrement *= 1.1f;
 		ballIncrement *= -1;
-		cout << "\nBall Right Vertice: " << ball_rightXVertice << "    " << "Paddle Left Vertice: " << rightPaddle_leftXVertice << endl;
-		cout << "\nBall Offset 0: " << ballOffset[0] << "    " << "Paddle Offset 0: " << rightPaddleOffset[0] << endl;
+		// Up/Down ball movement
+		if (ball_midY > rightPaddle_midY)
+		{
+			ballYDirection = 0.015f;
+		}
+		else if (ball_midY < rightPaddle_midY)
+		{
+			ballYDirection = -0.015f;
+		}
 	}
+	// Bouncing off left paddle
 	else if (ball_leftXVertice < leftPaddle_rightXVertice
 		&& ball_rightXVertice > leftPaddle_leftXVertice
 		&& ball_topYVertice > leftPaddle_bottomYVertice
 		&& ball_bottomYVertice < leftPaddle_topYVertice)
 	{
+		ballIncrement *= 1.1f;
 		ballIncrement *= -1;
-		cout << "\nBall Left Vertice: " << ball_leftXVertice << "    " << "Paddle Right Vertice: " << leftPaddle_rightXVertice << endl;
-		cout << "\nBall Offset 0: " << ballOffset[0] << "    " << "Paddle Offset 0: " << rightPaddleOffset[0] << endl;
+		// Up/Down ball movement
+		if (ball_midY > leftPaddle_midY)
+		{
+			ballYDirection = 0.015f;
+		}
+		else if (ball_midY < leftPaddle_midY)
+		{
+			ballYDirection = -0.015f;
+		}
 	}
 
 }
@@ -548,6 +571,7 @@ void updateSimulation(double simLength = 0.02) //update simulation with an amoun
 	}
 
 	ballOffset[0] += ballIncrement;
+	ballOffset[1] += ballYDirection;
 
 	BallController();
 }
