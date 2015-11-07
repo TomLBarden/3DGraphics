@@ -1,6 +1,4 @@
-// TODO - Optimise code
-//			- Score counter
-//				- Try and get this to work of off a single vertex matrix, duplicated and translated
+// TODO - Win state
 
 // tag::C++11check[]
 #define STRING2(x) #x
@@ -125,9 +123,8 @@ GLuint vertexDataBufferObjectBall;
 GLuint vertexArrayObject;
 GLuint vertexArrayObject2;
 GLuint vertexArrayObjectBall;
+
 // end::GLVariables[]
-
-
 
 // end Global Variables
 /////////////////////////
