@@ -504,7 +504,15 @@ void ResetBall()
 	ballOffset[0] = 0.0f;
 	ballOffset[1] = 0.0f;
 	ballYDirection = 0.0f;
-	ballIncrement = 0.005f;
+
+	if (ballIncrement < 0)
+	{
+		ballIncrement = -0.005f;
+	}
+	else
+	{
+		ballIncrement = 0.005f;
+	}
 }
 
 void BallWindowCollisions(float ballTop, float ballBottom, float ballRight, float ballLeft)

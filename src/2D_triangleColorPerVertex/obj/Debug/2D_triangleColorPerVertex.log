@@ -1,12 +1,12 @@
-﻿Build started 07/11/2015 12:21:34.
+﻿Build started 07/11/2015 15:20:04.
      1>Project "C:\Users\Computing\Documents\GitHub\2DGraphics\src\2D_triangleColorPerVertex\2D_triangleColorPerVertex.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c /I..\..\graphics_dependencies\SDL2\include /I..\..\graphics_dependencies\glew\include /ZI /nologo /W3 /WX- /Od /Oy- /D DEBUG /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"obj\Debug\\" /Fd".\2D_triangleColorPerVertex-debug.pdb" /Gd /TP /analyze- /errorReport:prompt  main.cpp
          main.cpp
      1>CL : warning : the compiler may not be C++11 compliant. __cplusplus version is : 199711L
-     1>c:\users\computing\documents\github\2dgraphics\src\2d_trianglecolorpervertex\main.cpp(543): warning C4101: 'ballYImpactPoint': unreferenced local variable
-     1>c:\users\computing\documents\github\2dgraphics\src\2d_trianglecolorpervertex\main.cpp(713): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-     1>c:\users\computing\documents\github\2dgraphics\src\2d_trianglecolorpervertex\main.cpp(718): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+     1>c:\users\computing\documents\github\2dgraphics\src\2d_trianglecolorpervertex\main.cpp(551): warning C4101: 'ballYImpactPoint': unreferenced local variable
+     1>c:\users\computing\documents\github\2dgraphics\src\2d_trianglecolorpervertex\main.cpp(721): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+     1>c:\users\computing\documents\github\2dgraphics\src\2d_trianglecolorpervertex\main.cpp(726): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:".\2D_triangleColorPerVertex-debug.exe" /INCREMENTAL /NOLOGO /LIBPATH:..\..\graphics_dependencies\glew\lib\Release\Win32 /LIBPATH:..\..\graphics_dependencies\SDL2\lib\win32 SDL2.lib SDL2main.lib opengl32.lib glew32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:".\2D_triangleColorPerVertex-debug.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /ENTRY:"mainCRTStartup" /DYNAMICBASE /NXCOMPAT /IMPLIB:".\2D_triangleColorPerVertex-debug.lib" /MACHINE:X86 /NODEFAULTLIB:msvcrt obj\Debug\main.obj
          2D_triangleColorPerVertex.vcxproj -> C:\Users\Computing\Documents\GitHub\2DGraphics\src\2D_triangleColorPerVertex\.\2D_triangleColorPerVertex-debug.exe
@@ -14,4 +14,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:00.84
+Time Elapsed 00:00:00.86
