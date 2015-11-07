@@ -1,3 +1,6 @@
+// TODO - Optimise code
+//			- Score counter
+
 // tag::C++11check[]
 #define STRING2(x) #x
 #define STRING(x) STRING2(x)
@@ -471,6 +474,57 @@ void handleInput()
 }
 // end::handleInput[]
 
+void BounceBallOffPaddle(float ballMidY, float paddleMidY, float paddleTopY, float paddleBottomY)
+{
+	float ballYImpactPoint;
+
+	ballIncrement *= 1.1f;
+	ballIncrement *= -1;
+
+	if (ballMidY > paddleMidY)
+	{
+		ballYImpactPoint = (ballMidY - paddleMidY) / (paddleTopY - paddleMidY);
+		cout << "Impact Percentage: " << ballYImpactPoint << endl;
+		ballYDirection = ballYImpactPoint / 100;
+	}
+	else if (ballMidY < paddleMidY)
+	{
+		ballYImpactPoint = ((ballMidY - paddleMidY) / (paddleBottomY - paddleMidY) * -1);
+		cout << "Impact Percentage: " << ballYImpactPoint << endl;
+		ballYDirection = ballYImpactPoint / 100;
+	}
+}
+
+void ResetBall()
+{
+	ballOffset[0] = 0.0f;
+	ballOffset[1] = 0.0f;
+	ballYDirection = 0.0f;
+}
+
+void BallWindowCollisions(float ballTop, float ballBottom, float ballRight, float ballLeft)
+{
+	// Wall Collisions
+	// Top/Bottom (Reverse ball Y direction)
+	if (ballTop >= 1.0f)
+	{
+		ballYDirection *= -1;
+	}
+	else if (ballBottom <= -1.0f)
+	{
+		ballYDirection *= -1;
+	}
+	// Back Walls (Opposing player scores a point)
+	if (ballRight >= 1.0f)
+	{
+		ResetBall();
+	}
+	else if (ballLeft <= -1.0f)
+	{
+		ResetBall();
+	}
+}
+
 void BallController()
 {
 	// Current ball vertice positions
@@ -502,22 +556,7 @@ void BallController()
 		&& ball_topYVertice > rightPaddle_bottomYVertice 
 		&& ball_bottomYVertice < rightPaddle_topYVertice)
 	{
-		ballIncrement *= 1.1f;
-		ballIncrement *= -1;
-		// Up/Down ball movement
-		// Up/Down ball movement
-		if (ball_midY > rightPaddle_midY)
-		{
-			ballYImpactPoint = (ball_midY - rightPaddle_midY) / (rightPaddle_topYVertice - rightPaddle_midY);
-			cout << "Impact Percentage: " << ballYImpactPoint << endl;
-			ballYDirection = ballYImpactPoint / 100;
-		}
-		else if (ball_midY < rightPaddle_midY)
-		{
-			ballYImpactPoint = ((ball_midY - rightPaddle_midY) / (rightPaddle_bottomYVertice - rightPaddle_midY) * -1);
-			cout << "Impact Percentage: " << ballYImpactPoint << endl;
-			ballYDirection = ballYImpactPoint / 100;
-		}
+		BounceBallOffPaddle(ball_midY, rightPaddle_midY, rightPaddle_topYVertice, rightPaddle_bottomYVertice);
 	}
 	// Bouncing off left paddle
 	else if (ball_leftXVertice < leftPaddle_rightXVertice
@@ -525,51 +564,11 @@ void BallController()
 		&& ball_topYVertice > leftPaddle_bottomYVertice
 		&& ball_bottomYVertice < leftPaddle_topYVertice)
 	{
-		ballIncrement *= 1.1f;
-		ballIncrement *= -1;
-		// Up/Down ball movement
-		if (ball_midY > leftPaddle_midY)
-		{
-			ballYImpactPoint = (ball_midY - leftPaddle_midY) / (leftPaddle_topYVertice - leftPaddle_midY);
-			cout << "Impact Percentage: " << ballYImpactPoint << endl;
-			ballYDirection = ballYImpactPoint / 100;
-		}
-		else if (ball_midY < leftPaddle_midY)
-		{
-			ballYImpactPoint = ((ball_midY - leftPaddle_midY) / (leftPaddle_bottomYVertice - leftPaddle_midY) * -1);
-			cout << "Impact Percentage: " << ballYImpactPoint << endl;
-			ballYDirection = ballYImpactPoint / 100;
-		}
+		BounceBallOffPaddle(ball_midY, leftPaddle_midY, leftPaddle_topYVertice, leftPaddle_bottomYVertice);
 	}
 
-	// Wall Collisions
-	// Top/Bottom (Reverse ball Y direction)
-	if (ball_topYVertice >= 1.0f)
-	{
-		ballYDirection *= -1;
-	}
-	else if (ball_bottomYVertice <= -1.0f)
-	{
-		ballYDirection *= -1;
-	}
-	// Back Walls (Opposing player scores a point)
-	if (ball_rightXVertice >= 1.0f)
-	{
-		resetBall();
-	}
-	else if (ball_leftXVertice <= -1.0f)
-	{
-		resetBall();
-	}
+	BallWindowCollisions(ball_topYVertice, ball_bottomYVertice, ball_rightXVertice, ball_leftXVertice);
 
-
-}
-
-void resetBall()
-{
-	ballOffset[0] = 0.0f;
-	ballOffset[1] = 0.0f;
-	ballYDirection = 0.0f;
 }
 
 // tag::updateSimulation[]
