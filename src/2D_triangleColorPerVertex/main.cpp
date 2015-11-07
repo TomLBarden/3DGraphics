@@ -86,17 +86,17 @@ int playerTwoScore = 0;
 //the data about our geometry
 const GLfloat vertexDataLeftPaddle[] = {
 	// X        Y        R     G     B      A
-	-0.855f,  0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
-	-0.855f,  0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
-	-0.875f,  0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
-	-0.875f,  0.000f,   1.0f, 1.0f, 1.0f,  1.0f
+	-0.855f,  0.300f,   0.9f, 0.5f, 0.25f,  1.0f,
+	-0.855f,  0.000f,   0.9f, 0.5f, 0.25f,  1.0f,
+	-0.875f,  0.300f,   0.9f, 0.5f, 0.25f,  1.0f,
+	-0.875f,  0.000f,   0.9f, 0.5f, 0.25f,  1.0f
 };
 const GLfloat vertexDataRightPaddle[] = {
 	// X        Y        R     G     B      A
-	 0.855f,  0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
-     0.855f,  0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
-	 0.875f,  0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
-	 0.875f,  0.000f,   1.0f, 1.0f, 1.0f,  1.0f
+	 0.855f,  0.300f,   0.5f, 0.25f, 0.9f,  1.0f,
+     0.855f,  0.000f,   0.5f, 0.25f, 0.9f,  1.0f,
+	 0.875f,  0.300f,   0.5f, 0.25f, 0.9f,  1.0f,
+	 0.875f,  0.000f,   0.5f, 0.25f, 0.9f,  1.0f
 };
 const GLfloat vertexDataBall[] = {
 	// X        Y        R     G     B      A
@@ -504,6 +504,7 @@ void ResetBall()
 	ballOffset[0] = 0.0f;
 	ballOffset[1] = 0.0f;
 	ballYDirection = 0.0f;
+	ballIncrement = 0.005f;
 }
 
 void BallWindowCollisions(float ballTop, float ballBottom, float ballRight, float ballLeft)
@@ -670,13 +671,13 @@ void renderScoreMarkers(float index, bool playerOneScored)
 	{
 		leftX = -1.170f;
 		rightX = -1.140f;
-		modifier = ((index/2.00f) + 2.00) / 10.00f;
+		modifier = ((index/2.00f) + 2.00f) / 10.00f;
 	}
 	else
 	{
 		leftX = 1.170f;
 		rightX = 1.140f;
-		modifier = ((-index / 2.00f) - 2.00) / 10.00f;
+		modifier = ((-index / 2.00f) - 2.00f) / 10.00f;
 	}
 
 	renderScoreMarker(leftX, rightX, modifier);
