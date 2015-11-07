@@ -479,6 +479,7 @@ void BallController()
 	float ball_topYVertice = 0.050f + ballOffset[1];
 	float ball_bottomYVertice = 0.000f + ballOffset[1];
 	float ball_midY = (ball_topYVertice + ball_bottomYVertice) / 2;
+	float ballYImpactPoint;
 
 	// Current left paddle vertice positions
 	float leftPaddle_leftXVertice = -0.875f + leftPaddleOffset[0];
@@ -504,13 +505,18 @@ void BallController()
 		ballIncrement *= 1.1f;
 		ballIncrement *= -1;
 		// Up/Down ball movement
+		// Up/Down ball movement
 		if (ball_midY > rightPaddle_midY)
 		{
-			ballYDirection = 0.015f;
+			ballYImpactPoint = (ball_midY - rightPaddle_midY) / (rightPaddle_topYVertice - rightPaddle_midY);
+			cout << "Impact Percentage: " << ballYImpactPoint << endl;
+			ballYDirection = ballYImpactPoint / 100;
 		}
 		else if (ball_midY < rightPaddle_midY)
 		{
-			ballYDirection = -0.015f;
+			ballYImpactPoint = ((ball_midY - rightPaddle_midY) / (rightPaddle_bottomYVertice - rightPaddle_midY) * -1);
+			cout << "Impact Percentage: " << ballYImpactPoint << endl;
+			ballYDirection = ballYImpactPoint / 100;
 		}
 	}
 	// Bouncing off left paddle
@@ -524,14 +530,46 @@ void BallController()
 		// Up/Down ball movement
 		if (ball_midY > leftPaddle_midY)
 		{
-			ballYDirection = 0.015f;
+			ballYImpactPoint = (ball_midY - leftPaddle_midY) / (leftPaddle_topYVertice - leftPaddle_midY);
+			cout << "Impact Percentage: " << ballYImpactPoint << endl;
+			ballYDirection = ballYImpactPoint / 100;
 		}
 		else if (ball_midY < leftPaddle_midY)
 		{
-			ballYDirection = -0.015f;
+			ballYImpactPoint = ((ball_midY - leftPaddle_midY) / (leftPaddle_bottomYVertice - leftPaddle_midY) * -1);
+			cout << "Impact Percentage: " << ballYImpactPoint << endl;
+			ballYDirection = ballYImpactPoint / 100;
 		}
 	}
 
+	// Wall Collisions
+	// Top/Bottom (Reverse ball Y direction)
+	if (ball_topYVertice >= 1.0f)
+	{
+		ballYDirection *= -1;
+	}
+	else if (ball_bottomYVertice <= -1.0f)
+	{
+		ballYDirection *= -1;
+	}
+	// Back Walls (Opposing player scores a point)
+	if (ball_rightXVertice >= 1.0f)
+	{
+		resetBall();
+	}
+	else if (ball_leftXVertice <= -1.0f)
+	{
+		resetBall();
+	}
+
+
+}
+
+void resetBall()
+{
+	ballOffset[0] = 0.0f;
+	ballOffset[1] = 0.0f;
+	ballYDirection = 0.0f;
 }
 
 // tag::updateSimulation[]
