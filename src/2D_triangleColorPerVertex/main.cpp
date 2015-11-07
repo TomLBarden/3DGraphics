@@ -72,44 +72,48 @@ bool sDown = false;
 bool upArrowDown = false;
 bool downArrowDown = false;
 
+float ballIncrement = 0.005f;
+
 // tag::vertexData[]
 //the data about our geometry
 const GLfloat vertexDataLeftPaddle[] = {
 	// X        Y        R     G     B      A
-	-0.355f,  0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
-	-0.375f, 0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
-	-0.355f,  0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
+	-0.855f,  0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
+	-0.875f, 0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
+	-0.855f,  0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
 	
-	-0.355f,  0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
-	-0.375f, 0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
-	-0.375f, 0.000f,   1.0f, 1.0f, 1.0f,  1.0f
+	-0.855f,  0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
+	-0.875f, 0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
+	-0.875f, 0.000f,   1.0f, 1.0f, 1.0f,  1.0f
 };
 // end::vertexData[]
 const GLfloat vertexDataRightPaddle[] = {
 	// X        Y        R     G     B      A
-	 1.355f,  0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
-	 1.375f, 0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
-     1.355f,  0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
+	 0.855f,  0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
+	 0.875f, 0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
+     0.855f,  0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
 
-	 1.355f,  0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
-	 1.375f, 0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
-	 1.375f, 0.000f,   1.0f, 1.0f, 1.0f,  1.0f
+	 0.855f,  0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
+	 0.875f, 0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
+	 0.875f, 0.000f,   1.0f, 1.0f, 1.0f,  1.0f
 };
+// make square
 const GLfloat vertexDataBall[] = {
 	// X        Y        R     G     B      A
-	0.300f,  0.195f,   1.0f, 1.0f, 1.0f,  1.0f,
-	0.250f, 0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
-	0.350f,  0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
+	0.000f,  0.050f,   1.0f, 1.0f, 1.0f,  1.0f,
+	0.030f,  0.050f,   1.0f, 1.0f, 1.0f,  1.0f,
+	0.030f,  0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
 
-	0.300f, -0.065f,   1.0f, 1.0f, 1.0f,  1.0f,
-	0.250f, 0.121f,   1.0f, 1.0f, 1.0f,  1.0f,
-	0.350f, 0.121f,   1.0f, 1.0f, 1.0f,  1.0f
+	0.000f,  0.050f,   1.0f, 1.0f, 1.0f,  1.0f,
+	0.000f,  0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
+	0.030f,  0.000f,   1.0f, 1.0f, 1.0f,  1.0f
 };
 
 //the color we'll pass to the GLSL
 GLfloat color[] = { 1.0f, 1.0f, 1.0f }; //using different values from CPU and static GLSL examples, to make it clear this is working
-GLfloat leftPaddleOffset[] = { -0.5f, -0.5f };
-GLfloat rightPaddleOffset[] = { -0.5f, -0.5f };
+GLfloat leftPaddleOffset[] = { 0.0f, 0.0f };
+GLfloat rightPaddleOffset[] = { 0.0f, 0.0f };
+GLfloat ballOffset[] = { 0.0f, 0.0f };
 
 // tag::GLVariables[]
 //my GL and GLSL variables
@@ -477,6 +481,47 @@ void handleInput()
 }
 // end::handleInput[]
 
+void BallController()
+{
+	// Current ball vertice positions
+	float ball_leftXVertice = 0.000f + ballOffset[0];
+	float ball_rightXVertice = 0.030f + ballOffset[0];
+	float ball_topYVertice = 0.050f + ballOffset[1];
+	float ball_bottomYVertice = 0.000f + ballOffset[1];
+
+	// Current left paddle vertice positions
+	float leftPaddle_leftXVertice = -0.875f + leftPaddleOffset[0];
+	float leftPaddle_rightXVertice = -0.855f + leftPaddleOffset[0];
+	float leftPaddle_topYVertice = 0.300f + leftPaddleOffset[1];
+	float leftPaddle_bottomYVertice = 0.000f + leftPaddleOffset[1];
+
+	// Current right paddle vertice positions
+	float rightPaddle_leftXVertice = 0.855f + rightPaddleOffset[0];
+	float rightPaddle_rightXVertice = 0.875f + rightPaddleOffset[0];
+	float rightPaddle_topYVertice = 0.300f + rightPaddleOffset[1];
+	float rightPaddle_bottomYVertice = 0.000f + rightPaddleOffset[1];
+
+	if (ball_rightXVertice > rightPaddle_leftXVertice
+		&& ball_leftXVertice < rightPaddle_rightXVertice
+		&& ball_topYVertice > rightPaddle_bottomYVertice 
+		&& ball_bottomYVertice < rightPaddle_topYVertice)
+	{
+		ballIncrement *= -1;
+		cout << "\nBall Right Vertice: " << ball_rightXVertice << "    " << "Paddle Left Vertice: " << rightPaddle_leftXVertice << endl;
+		cout << "\nBall Offset 0: " << ballOffset[0] << "    " << "Paddle Offset 0: " << rightPaddleOffset[0] << endl;
+	}
+	else if (ball_leftXVertice < leftPaddle_rightXVertice
+		&& ball_rightXVertice > leftPaddle_leftXVertice
+		&& ball_topYVertice > leftPaddle_bottomYVertice
+		&& ball_bottomYVertice < leftPaddle_topYVertice)
+	{
+		ballIncrement *= -1;
+		cout << "\nBall Left Vertice: " << ball_leftXVertice << "    " << "Paddle Right Vertice: " << leftPaddle_rightXVertice << endl;
+		cout << "\nBall Offset 0: " << ballOffset[0] << "    " << "Paddle Offset 0: " << rightPaddleOffset[0] << endl;
+	}
+
+}
+
 // tag::updateSimulation[]
 void updateSimulation(double simLength = 0.02) //update simulation with an amount of time to simulate for (in seconds)
 {
@@ -501,6 +546,10 @@ void updateSimulation(double simLength = 0.02) //update simulation with an amoun
 	{
 		rightPaddleOffset[1] -= 0.025f;
 	}
+
+	ballOffset[0] += ballIncrement;
+
+	BallController();
 }
 // end::updateSimulation[]
 
@@ -531,7 +580,7 @@ void render()
 	glBindVertexArray(0);
 
 	// Ball
-	glUniform2f(offsetLocation, leftPaddleOffset[0], leftPaddleOffset[1]);
+	glUniform2f(offsetLocation, ballOffset[0], ballOffset[1]);
 	glBindVertexArray(vertexArrayObjectBall);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glBindVertexArray(0);
