@@ -80,33 +80,22 @@ float ballYDirection = 0.000f;
 const GLfloat vertexDataLeftPaddle[] = {
 	// X        Y        R     G     B      A
 	-0.855f,  0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
-	-0.875f, 0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
 	-0.855f,  0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
-	
-	-0.855f,  0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
-	-0.875f, 0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
-	-0.875f, 0.000f,   1.0f, 1.0f, 1.0f,  1.0f
+	-0.875f,  0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
+	-0.875f,  0.000f,   1.0f, 1.0f, 1.0f,  1.0f
 };
-// end::vertexData[]
 const GLfloat vertexDataRightPaddle[] = {
 	// X        Y        R     G     B      A
 	 0.855f,  0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
-	 0.875f, 0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
      0.855f,  0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
-
-	 0.855f,  0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
-	 0.875f, 0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
-	 0.875f, 0.000f,   1.0f, 1.0f, 1.0f,  1.0f
+	 0.875f,  0.300f,   1.0f, 1.0f, 1.0f,  1.0f,
+	 0.875f,  0.000f,   1.0f, 1.0f, 1.0f,  1.0f
 };
-// make square
 const GLfloat vertexDataBall[] = {
 	// X        Y        R     G     B      A
 	0.000f,  0.050f,   1.0f, 1.0f, 1.0f,  1.0f,
-	0.030f,  0.050f,   1.0f, 1.0f, 1.0f,  1.0f,
-	0.030f,  0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
-
-	0.000f,  0.050f,   1.0f, 1.0f, 1.0f,  1.0f,
 	0.000f,  0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
+	0.030f,  0.050f,   1.0f, 1.0f, 1.0f,  1.0f,
 	0.030f,  0.000f,   1.0f, 1.0f, 1.0f,  1.0f
 };
 
@@ -594,19 +583,19 @@ void render()
 	// Left Paddle
 	glUniform2f(offsetLocation, leftPaddleOffset[0], leftPaddleOffset[1]);
 	glBindVertexArray(vertexArrayObject);
-	glDrawArrays(GL_TRIANGLES, 0, 6); 
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); 
 	glBindVertexArray(0);
 
 	// Right Paddle
 	glUniform2f(offsetLocation, rightPaddleOffset[0], rightPaddleOffset[1]);
 	glBindVertexArray(vertexArrayObject2);
-	glDrawArrays(GL_TRIANGLES, 0, 6); 
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); 
 	glBindVertexArray(0);
 
 	// Ball
 	glUniform2f(offsetLocation, ballOffset[0], ballOffset[1]);
 	glBindVertexArray(vertexArrayObjectBall);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindVertexArray(0);
 
 	glUseProgram(0); //clean up
