@@ -17,6 +17,11 @@
 
 #include <GL/glew.h>
 #include <SDL.h>
+#include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/rotate_vector.hpp>
 // end::includes[]
 
 // tag::using[]
@@ -38,16 +43,25 @@ std::string frameLine = "";
 
 // tag::vertexShader[]
 //string holding the **source** of our vertex shader, to save loading from a file
+
+// mat4 multiplaction in the shader seems to be the issue? Why? 
+
 const std::string strVertexShader = R"(
 	#version 330
+
 	in vec2 position;
 	in vec4 vertexColor;
+
 	out vec4 fragmentColor;
+
 	uniform vec2 offset;
+	uniform mat4 rotation;
+	//uniform mat4 translation;
+
 	void main()
 	{
 		vec2 tempPos = position + offset;
-		gl_Position = vec4(tempPos, 0.0, 1.0);
+		gl_Position = rotation * vec4(tempPos, 0.0, 1.0);
 		fragmentColor = vertexColor;
 	}
 )";
@@ -76,6 +90,7 @@ bool downArrowDown = false;
 
 float ballIncrement = 0.005f;
 float ballYDirection = 0.000f;
+float rotateAngle = 0.000f;
 
 int playerOneScore = 0;
 int playerTwoScore = 0;
@@ -98,9 +113,9 @@ const GLfloat vertexDataRightPaddle[] = {
 };
 const GLfloat vertexDataBall[] = {
 	// X        Y        R     G     B      A
-	0.000f,  0.050f,   1.0f, 1.0f, 1.0f,  1.0f,
+	0.000f,  0.030f,   1.0f, 1.0f, 1.0f,  1.0f,
 	0.000f,  0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
-	0.030f,  0.050f,   1.0f, 1.0f, 1.0f,  1.0f,
+	0.030f,  0.030f,   1.0f, 1.0f, 1.0f,  1.0f,
 	0.030f,  0.000f,   1.0f, 1.0f, 1.0f,  1.0f
 };
 
@@ -116,6 +131,8 @@ GLuint theProgram; //GLuint that we'll fill in to refer to the GLSL program (onl
 GLint positionLocation; //GLuint that we'll fill in with the location of the `position` attribute in the GLSL
 GLint vertexColorLocation; //GLuint that we'll fill in with the location of the `vertexColor` attribute in the GLSL
 GLint offsetLocation;
+GLint uniRotation;
+GLint uniTranslation;
 
 GLuint vertexDataBufferObject;
 GLuint vertexDataBufferObject2;
@@ -123,8 +140,12 @@ GLuint vertexDataBufferObjectBall;
 GLuint vertexArrayObject;
 GLuint vertexArrayObject2;
 GLuint vertexArrayObjectBall;
-
 // end::GLVariables[]
+
+// tag::glmVariables[]
+glm::mat4 rotation;
+glm::mat4 translation;
+// end::glmVariables[]
 
 // end Global Variables
 /////////////////////////
@@ -298,6 +319,10 @@ void initializeProgram()
 
 	positionLocation = glGetAttribLocation(theProgram, "position");
 	offsetLocation = glGetUniformLocation(theProgram, "offset");
+	uniRotation = glGetUniformLocation(theProgram, "rotation");
+	glUniformMatrix4fv(uniRotation, 1, GL_FALSE, glm::value_ptr(rotation));
+	//uniTranslation = glGetUniformLocation(theProgram, "translation");
+	//glUniformMatrix4fv(uniTranslation, 1, GL_FALSE, glm::value_ptr(translation));
 	vertexColorLocation = glGetAttribLocation(theProgram, "vertexColor");
 	//clean up shaders (we don't need them anymore as they are no in theProgram
 	for_each(shaderList.begin(), shaderList.end(), glDeleteShader);
@@ -542,7 +567,7 @@ void BallController()
 	// Current ball vertice positions
 	float ball_leftXVertice = 0.000f + ballOffset[0];
 	float ball_rightXVertice = 0.030f + ballOffset[0];
-	float ball_topYVertice = 0.050f + ballOffset[1];
+	float ball_topYVertice = 0.030f + ballOffset[1];
 	float ball_bottomYVertice = 0.000f + ballOffset[1];
 	float ball_midY = (ball_topYVertice + ball_bottomYVertice) / 2;
 	float ballYImpactPoint;
@@ -563,7 +588,7 @@ void BallController()
 
 	// Left/Right ball movement
 	// Bouncing off right paddle
-	if (ball_rightXVertice > rightPaddle_leftXVertice
+	if (ball_rightXVertice > (rightPaddle_leftXVertice + 0.02f)
 		&& ball_leftXVertice < rightPaddle_rightXVertice
 		&& ball_topYVertice > rightPaddle_bottomYVertice 
 		&& ball_bottomYVertice < rightPaddle_topYVertice)
@@ -571,7 +596,7 @@ void BallController()
 		BounceBallOffPaddle(ball_midY, rightPaddle_midY, rightPaddle_topYVertice, rightPaddle_bottomYVertice);
 	}
 	// Bouncing off left paddle
-	else if (ball_leftXVertice < leftPaddle_rightXVertice
+	else if (ball_leftXVertice < (leftPaddle_rightXVertice + 0.035f)
 		&& ball_rightXVertice > leftPaddle_leftXVertice
 		&& ball_topYVertice > leftPaddle_bottomYVertice
 		&& ball_bottomYVertice < leftPaddle_topYVertice)
@@ -626,6 +651,7 @@ void preRender()
 
 void renderScoreMarker(float rightX, float leftX, float modifier)
 {
+
 	GLuint tempVertexDataBufferObject;
 	GLuint tempVertexArrayObject;
 
@@ -676,13 +702,13 @@ void renderScoreMarkers(float index, bool playerOneScored)
 	{
 		leftX = -1.170f;
 		rightX = -1.140f;
-		modifier = ((index/2.00f) + 2.00f) / 10.00f;
+		modifier = ((index/2.00f) + 2.30f) / 10.00f;
 	}
 	else
 	{
 		leftX = 1.170f;
 		rightX = 1.140f;
-		modifier = ((-index / 2.00f) - 2.00f) / 10.00f;
+		modifier = ((-index / 2.00f) - 2.30f) / 10.00f;
 	}
 
 	renderScoreMarker(leftX, rightX, modifier);
@@ -693,6 +719,12 @@ void renderScoreMarkers(float index, bool playerOneScored)
 void render()
 {
 	glUseProgram(theProgram); //installs the program object specified by program as part of current rendering state
+
+	//rotation = glm::rotate(glm::mat4(), glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+	rotation = glm::mat4();
+	glUniformMatrix4fv(uniRotation, 1, GL_FALSE, glm::value_ptr(rotation));
+	//translation = glm::mat4();
+	//glUniformMatrix4fv(uniTranslation, 1, GL_FALSE, glm::value_ptr(translation));
 
 	// Left Paddle
 	glUniform2f(offsetLocation, leftPaddleOffset[0], leftPaddleOffset[1]);
@@ -707,10 +739,21 @@ void render()
 	glBindVertexArray(0);
 
 	// Ball
+	rotateAngle -= 5.0f;
+
+	rotation = glm::translate(rotation, glm::vec3(ballOffset[0] - 0.015f, ballOffset[1] - 0.015f, 0.0f));
+	rotation = glm::rotate(rotation, glm::radians(rotateAngle), glm::vec3(0.0f, 0.0f, 1.0f));
+	rotation = glm::translate(rotation, glm::vec3(-ballOffset[0] - 0.015f, -ballOffset[1] - 0.015f, 0.0f));
+	glUniformMatrix4fv(uniRotation, 1, GL_FALSE, glm::value_ptr(rotation));
+
 	glUniform2f(offsetLocation, ballOffset[0], ballOffset[1]);
 	glBindVertexArray(vertexArrayObjectBall);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindVertexArray(0);
+
+	// Reset rotation
+	rotation = glm::mat4();
+	glUniformMatrix4fv(uniRotation, 1, GL_FALSE, glm::value_ptr(rotation));
 
 	// Render Player One Score Markers
 	for (int i = 0; i < playerOneScore; i++)
