@@ -14,6 +14,7 @@
 #include <vector>
 #include <algorithm>
 #include <string>
+#include <math.h>
 
 #include <GL/glew.h>
 #include <SDL.h>
@@ -56,7 +57,6 @@ const std::string strVertexShader = R"(
 
 	uniform vec2 offset;
 	uniform mat4 rotation;
-	//uniform mat4 translation;
 
 	void main()
 	{
@@ -118,6 +118,7 @@ const GLfloat vertexDataBall[] = {
 	0.030f,  0.030f,   1.0f, 1.0f, 1.0f,  1.0f,
 	0.030f,  0.000f,   1.0f, 1.0f, 1.0f,  1.0f
 };
+GLfloat vertexDataScoreMarker[6000];
 
 //the color we'll pass to the GLSL
 GLfloat color[] = { 1.0f, 1.0f, 1.0f }; //using different values from CPU and static GLSL examples, to make it clear this is working
@@ -132,7 +133,6 @@ GLint positionLocation; //GLuint that we'll fill in with the location of the `po
 GLint vertexColorLocation; //GLuint that we'll fill in with the location of the `vertexColor` attribute in the GLSL
 GLint offsetLocation;
 GLint uniRotation;
-GLint uniTranslation;
 
 GLuint vertexDataBufferObject;
 GLuint vertexDataBufferObject2;
@@ -321,8 +321,6 @@ void initializeProgram()
 	offsetLocation = glGetUniformLocation(theProgram, "offset");
 	uniRotation = glGetUniformLocation(theProgram, "rotation");
 	glUniformMatrix4fv(uniRotation, 1, GL_FALSE, glm::value_ptr(rotation));
-	//uniTranslation = glGetUniformLocation(theProgram, "translation");
-	//glUniformMatrix4fv(uniTranslation, 1, GL_FALSE, glm::value_ptr(translation));
 	vertexColorLocation = glGetAttribLocation(theProgram, "vertexColor");
 	//clean up shaders (we don't need them anymore as they are no in theProgram
 	for_each(shaderList.begin(), shaderList.end(), glDeleteShader);
@@ -348,29 +346,29 @@ void initializeVertexArrayObject()
 
 	// Right Paddle
 
-	glGenVertexArrays(1, &vertexArrayObject2); //create a Vertex Array Object
+	glGenVertexArrays(1, &vertexArrayObject2); 
 	cout << "Vertex Array Object created OK! GLUint is: " << vertexArrayObject2 << std::endl;
 
-	glBindVertexArray(vertexArrayObject2); //make the just created vertexArrayObject2 the active one
-	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObject2); //bind vertexDataBufferObject
-	glEnableVertexAttribArray(positionLocation); //enable attribute at index positionLocation
-	glEnableVertexAttribArray(vertexColorLocation); //enable attribute at index vertexColorLocation
-	glVertexAttribPointer(positionLocation, 2, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(0 * sizeof(GLfloat))); //specify that position data contains four floats per vertex, and goes into attribute index positionLocation
-	glVertexAttribPointer(vertexColorLocation, 4, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(2 * sizeof(GLfloat))); //specify that position data contains four floats per vertex, and goes into attribute index positionLocation
-	glBindVertexArray(0); //unbind the vertexArrayObject2 so we can't change it
+	glBindVertexArray(vertexArrayObject2); 
+	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObject2); 
+	glEnableVertexAttribArray(positionLocation); 
+	glEnableVertexAttribArray(vertexColorLocation); 
+	glVertexAttribPointer(positionLocation, 2, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(0 * sizeof(GLfloat))); 
+	glVertexAttribPointer(vertexColorLocation, 4, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(2 * sizeof(GLfloat))); 
+	glBindVertexArray(0); 
 
 	// Ball
 
-	glGenVertexArrays(1, &vertexArrayObjectBall); //create a Vertex Array Object
+	glGenVertexArrays(1, &vertexArrayObjectBall); 
 	cout << "Vertex Array Object created OK! GLUint is: " << vertexArrayObjectBall << std::endl;
 
-	glBindVertexArray(vertexArrayObjectBall); //make the just created vertexArrayObject2 the active one
-	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObjectBall); //bind vertexDataBufferObject
-	glEnableVertexAttribArray(positionLocation); //enable attribute at index positionLocation
-	glEnableVertexAttribArray(vertexColorLocation); //enable attribute at index vertexColorLocation
-	glVertexAttribPointer(positionLocation, 2, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(0 * sizeof(GLfloat))); //specify that position data contains four floats per vertex, and goes into attribute index positionLocation
-	glVertexAttribPointer(vertexColorLocation, 4, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(2 * sizeof(GLfloat))); //specify that position data contains four floats per vertex, and goes into attribute index positionLocation
-	glBindVertexArray(0); //unbind the vertexArrayObject2 so we can't change it
+	glBindVertexArray(vertexArrayObjectBall); 
+	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObjectBall); 
+	glEnableVertexAttribArray(positionLocation); 
+	glEnableVertexAttribArray(vertexColorLocation); 
+	glVertexAttribPointer(positionLocation, 2, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(0 * sizeof(GLfloat))); 
+	glVertexAttribPointer(vertexColorLocation, 4, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(2 * sizeof(GLfloat))); 
+	glBindVertexArray(0); 
 
 	// Cleanup
 
@@ -383,6 +381,7 @@ void initializeVertexArrayObject()
 // tag::initializeVertexBuffer[]
 void initializeVertexBuffer()
 {
+
 	// Left Paddle
 	glGenBuffers(1, &vertexDataBufferObject);
 
@@ -654,14 +653,37 @@ void renderScoreMarker(float rightX, float leftX, float modifier)
 
 	GLuint tempVertexDataBufferObject;
 	GLuint tempVertexArrayObject;
+	float interballOffset;
 
-	GLfloat vertexDataScoreMarker[] = {
-		// X                   Y        R     G     B      A
-		rightX + modifier,  0.950f,   1.0f, 1.0f, 1.0f,  1.0f,
-		rightX + modifier,  0.900f,   1.0f, 1.0f, 1.0f,  1.0f,
-		leftX + modifier,  0.950f,   1.0f, 1.0f, 1.0f,  1.0f,
-		leftX + modifier,  0.900f,   1.0f, 1.0f, 1.0f,  1.0f
-	};
+	if (rightX > 1)
+	{
+		interballOffset = -0.34f;
+	}
+	else
+	{
+		interballOffset = 0.34f;
+	}
+
+	for (int i = 0; i < 6000; i += 12)
+	{
+		float theta = 2.0f * M_PI * float(i) / float(1000);
+
+		float xAngle = 0.045f * cosf(theta);
+		float yAngle = 0.06f * sinf(theta);
+
+		vertexDataScoreMarker[i] = xAngle + rightX + modifier - interballOffset; // X axis - Take the generated x axis and apply the rightX offset and modifier
+		vertexDataScoreMarker[i + 1] = yAngle + 0.915f; // Y axis - Move the circle up
+		vertexDataScoreMarker[i + 2] = 1.0f;  // R
+		vertexDataScoreMarker[i + 3] = 1.0f;  // G
+		vertexDataScoreMarker[i + 4] = 1.0f;  // B
+		vertexDataScoreMarker[i + 5] = 1.0f;  // A
+		vertexDataScoreMarker[i + 6] = xAngle + rightX + modifier - interballOffset; // X
+		vertexDataScoreMarker[i + 7] = (yAngle * -1) + 0.915f; // Y
+		vertexDataScoreMarker[i + 8] = 1.0f;  // R
+		vertexDataScoreMarker[i + 9] = 1.0f;  // G
+		vertexDataScoreMarker[i + 10] = 1.0f; // B
+		vertexDataScoreMarker[i + 11] = 1.0f; // A
+	}
 
 	glGenBuffers(1, &tempVertexDataBufferObject);
 
@@ -686,7 +708,7 @@ void renderScoreMarker(float rightX, float leftX, float modifier)
 	glBindBuffer(GL_ARRAY_BUFFER, 0); //unbind array buffer
 
 	glBindVertexArray(tempVertexArrayObject);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 1000);
 	glBindVertexArray(0);
 }
 
@@ -702,13 +724,13 @@ void renderScoreMarkers(float index, bool playerOneScored)
 	{
 		leftX = -1.170f;
 		rightX = -1.140f;
-		modifier = ((index/2.00f) + 2.30f) / 10.00f;
+		modifier = ((index/2.00f) + 2.30f) / 4.00f;
 	}
 	else
 	{
 		leftX = 1.170f;
 		rightX = 1.140f;
-		modifier = ((-index / 2.00f) - 2.30f) / 10.00f;
+		modifier = ((-index / 2.00f) - 2.30f) / 4.00f;
 	}
 
 	renderScoreMarker(leftX, rightX, modifier);
@@ -719,12 +741,6 @@ void renderScoreMarkers(float index, bool playerOneScored)
 void render()
 {
 	glUseProgram(theProgram); //installs the program object specified by program as part of current rendering state
-
-	//rotation = glm::rotate(glm::mat4(), glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-	rotation = glm::mat4();
-	glUniformMatrix4fv(uniRotation, 1, GL_FALSE, glm::value_ptr(rotation));
-	//translation = glm::mat4();
-	//glUniformMatrix4fv(uniTranslation, 1, GL_FALSE, glm::value_ptr(translation));
 
 	// Left Paddle
 	glUniform2f(offsetLocation, leftPaddleOffset[0], leftPaddleOffset[1]);
