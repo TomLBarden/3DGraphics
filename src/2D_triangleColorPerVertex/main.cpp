@@ -87,6 +87,7 @@ bool wDown = false;
 bool sDown = false;
 bool upArrowDown = false;
 bool downArrowDown = false;
+bool rotateRight = true;
 
 float ballIncrement = 0.005f;
 float ballYDirection = 0.000f;
@@ -505,6 +506,7 @@ void BounceBallOffPaddle(float ballMidY, float paddleMidY, float paddleTopY, flo
 
 	ballIncrement *= 1.1f;
 	ballIncrement *= -1;
+	rotateRight = false;
 
 	if (ballMidY > paddleMidY)
 	{
@@ -664,6 +666,7 @@ void renderScoreMarker(float rightX, float leftX, float modifier)
 		interballOffset = 0.34f;
 	}
 
+	// Generate vertex data for a circle with ~1000 triangles
 	for (int i = 0; i < 6000; i += 12)
 	{
 		float theta = 2.0f * M_PI * float(i) / float(1000);
@@ -677,6 +680,7 @@ void renderScoreMarker(float rightX, float leftX, float modifier)
 		vertexDataScoreMarker[i + 3] = 1.0f;  // G
 		vertexDataScoreMarker[i + 4] = 1.0f;  // B
 		vertexDataScoreMarker[i + 5] = 1.0f;  // A
+
 		vertexDataScoreMarker[i + 6] = xAngle + rightX + modifier - interballOffset; // X
 		vertexDataScoreMarker[i + 7] = (yAngle * -1) + 0.915f; // Y
 		vertexDataScoreMarker[i + 8] = 1.0f;  // R
@@ -755,8 +759,14 @@ void render()
 	glBindVertexArray(0);
 
 	// Ball
-	rotateAngle -= 5.0f;
-
+	if (rotateRight)
+	{
+		rotateAngle -= 5.0f;
+	}
+	else
+	{
+		rotateAngle += 5.0f;
+	}
 	rotation = glm::translate(rotation, glm::vec3(ballOffset[0] - 0.015f, ballOffset[1] - 0.015f, 0.0f));
 	rotation = glm::rotate(rotation, glm::radians(rotateAngle), glm::vec3(0.0f, 0.0f, 1.0f));
 	rotation = glm::translate(rotation, glm::vec3(-ballOffset[0] - 0.015f, -ballOffset[1] - 0.015f, 0.0f));
@@ -819,17 +829,13 @@ int main(int argc, char* args[])
 
 	initGlew();
 
-	glViewport(0, 0, 600, 600); //should check what the actual window res is?
-
 	SDL_GL_SwapWindow(win); //force a swap, to make the trace clearer
 
-							//do stuff that only needs to happen once
-							//- create shaders
-							//- load vertex data
 	loadAssets();
 
 	while (!done) //loop until done flag is set)
 	{
+
 		handleInput(); // this should ONLY SET VARIABLES
 
 		updateSimulation(); // this should ONLY SET VARIABLES according to simulation
