@@ -102,15 +102,15 @@ const GLfloat vertexDataLeftPaddle[] = {
 	// X        Y        R     G     B      A
 	-0.855f,  0.150f,   0.9f, 0.5f, 0.25f,  1.0f,
 	-0.855f, -0.150f,   0.9f, 0.5f, 0.25f,  1.0f,
-	-0.875f,  0.150f,   0.9f, 0.5f, 0.25f,  1.0f,
-	-0.875f, -0.150f,   0.9f, 0.5f, 0.25f,  1.0f
+	-0.875f,  0.150f,   0.9f, 0.25f, 0.25f,  1.0f,
+	-0.875f, -0.150f,   0.9f, 0.25f, 0.25f,  1.0f
 };
 const GLfloat vertexDataRightPaddle[] = {
 	// X        Y        R     G     B      A
 	 0.855f,  0.150f,   0.5f, 0.25f, 0.9f,  1.0f,
      0.855f, -0.150f,   0.5f, 0.25f, 0.9f,  1.0f,
-	 0.875f,  0.150f,   0.5f, 0.25f, 0.9f,  1.0f,
-	 0.875f, -0.150f,   0.5f, 0.25f, 0.9f,  1.0f
+	 0.875f,  0.150f,   0.25f, 0.25f, 0.9f,  1.0f,
+	 0.875f, -0.150f,   0.25f, 0.25f, 0.9f,  1.0f
 };
 const GLfloat vertexDataBall[] = {
 	// X        Y        R     G     B      A
@@ -557,13 +557,20 @@ void ResetBall()
 	ballOffset[1] = 0.0f;
 	ballYDirection = 0.0f;
 
-	if (ballIncrement < 0)
+	if (playerOneScore < 6 & playerTwoScore < 6)
 	{
-		ballIncrement = -0.005f;
+		if (ballIncrement < 0)
+		{
+			ballIncrement = -0.005f;
+		}
+		else
+		{
+			ballIncrement = 0.005f;
+		}
 	}
 	else
 	{
-		ballIncrement = 0.005f;
+		ballIncrement = 0.0f;
 	}
 }
 
@@ -571,24 +578,20 @@ void BallWindowCollisions(float ballTop, float ballBottom, float ballRight, floa
 {
 	// Wall Collisions
 	// Top/Bottom (Reverse ball Y direction)
-	if (ballTop >= 1.0f)
-	{
+	if (ballTop >= 0.98f)
 		ballYDirection *= -1;
-	}
-	else if (ballBottom <= -0.95f)
-	{
+	else if (ballBottom <= -0.98f)
 		ballYDirection *= -1;
-	}
 	// Back Walls (Opposing player scores a point)
 	if (ballRight >= 1.0f)
 	{
-		if(playerOneScore < 5)
+		if (playerOneScore < 6)
 			playerOneScore++;
 		ResetBall();
 	}
 	else if (ballLeft <= -1.0f)
 	{
-		if(playerTwoScore < 5)
+		if(playerTwoScore < 6)
 			playerTwoScore++;
 		ResetBall();
 	}
@@ -686,22 +689,20 @@ void renderScoreMarker(float rightX, float modifier)
 
 	GLuint tempVertexDataBufferObject;
 	GLuint tempVertexArrayObject;
-	float interballOffset;
 	float R;
 	float G;
 	float B;
 	float A = 1.0f;
+	float gradient = 0.25f;
 
 	if (rightX > 1)
 	{
-		//interballOffset = -0.24f;
 		R = 0.5f;
 		G = 0.25f;
 		B = 0.9f;
 	}
 	else
 	{
-		//interballOffset = 0.24f;
 		R = 0.9f;
 		G = 0.5f;
 		B = 0.25f;
@@ -717,8 +718,16 @@ void renderScoreMarker(float rightX, float modifier)
 
 		vertexDataScoreMarker[i] = xAngle + rightX + modifier; // X axis - Take the generated x axis and apply the rightX offset and modifier
 		vertexDataScoreMarker[i + 1] = yAngle + 0.905f; // Y axis - Move the circle up
-		vertexDataScoreMarker[i + 2] = R;  // R
-		vertexDataScoreMarker[i + 3] = G;  // G
+		// gradient logic
+		if (rightX > 1)
+			vertexDataScoreMarker[i + 2] = gradient; // R - Applys gradient to player two's markers
+		else
+			vertexDataScoreMarker[i + 2] = R;  // R
+		if (rightX < 1)
+			vertexDataScoreMarker[i + 3] = gradient; // G - Apply's gradient to player one's markers
+		else
+			vertexDataScoreMarker[i + 3] = G;  // G
+		// end graident logic
 		vertexDataScoreMarker[i + 4] = B;  // B
 		vertexDataScoreMarker[i + 5] = A;  // A
 
