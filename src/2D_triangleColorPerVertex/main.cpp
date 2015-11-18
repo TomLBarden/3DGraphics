@@ -100,24 +100,31 @@ int playerTwoScore = 0;
 //the data about our geometry
 const GLfloat vertexDataLeftPaddle[] = {
 	// X        Y        R     G     B      A
-	-0.855f,  0.300f,   0.9f, 0.5f, 0.25f,  1.0f,
-	-0.855f,  0.000f,   0.9f, 0.5f, 0.25f,  1.0f,
-	-0.875f,  0.300f,   0.9f, 0.5f, 0.25f,  1.0f,
-	-0.875f,  0.000f,   0.9f, 0.5f, 0.25f,  1.0f
+	-0.855f,  0.150f,   0.9f, 0.5f, 0.25f,  1.0f,
+	-0.855f, -0.150f,   0.9f, 0.5f, 0.25f,  1.0f,
+	-0.875f,  0.150f,   0.9f, 0.5f, 0.25f,  1.0f,
+	-0.875f, -0.150f,   0.9f, 0.5f, 0.25f,  1.0f
 };
 const GLfloat vertexDataRightPaddle[] = {
 	// X        Y        R     G     B      A
-	 0.855f,  0.300f,   0.5f, 0.25f, 0.9f,  1.0f,
-     0.855f,  0.000f,   0.5f, 0.25f, 0.9f,  1.0f,
-	 0.875f,  0.300f,   0.5f, 0.25f, 0.9f,  1.0f,
-	 0.875f,  0.000f,   0.5f, 0.25f, 0.9f,  1.0f
+	 0.855f,  0.150f,   0.5f, 0.25f, 0.9f,  1.0f,
+     0.855f, -0.150f,   0.5f, 0.25f, 0.9f,  1.0f,
+	 0.875f,  0.150f,   0.5f, 0.25f, 0.9f,  1.0f,
+	 0.875f, -0.150f,   0.5f, 0.25f, 0.9f,  1.0f
 };
 const GLfloat vertexDataBall[] = {
 	// X        Y        R     G     B      A
-	0.000f,  0.030f,   1.0f, 1.0f, 1.0f,  1.0f,
-	0.000f,  0.000f,   1.0f, 1.0f, 1.0f,  1.0f,
-	0.030f,  0.030f,   1.0f, 1.0f, 1.0f,  1.0f,
-	0.030f,  0.000f,   1.0f, 1.0f, 1.0f,  1.0f
+	-0.015f,  0.015f,   1.0f, 1.0f, 1.0f,  1.0f,
+	-0.015f, -0.015f,   1.0f, 1.0f, 1.0f,  1.0f,
+	 0.015f,  0.015f,   1.0f, 1.0f, 1.0f,  1.0f,
+	 0.015f, -0.015f,   1.0f, 1.0f, 1.0f,  1.0f
+};
+const GLfloat vertexDataBoundry[] = {
+	// X        Y        R     G     B      A
+	-0.990f, -0.980f,   0.0f, 0.0f, 0.0f,  1.0f,
+	-0.990f,  0.980f,   0.0f, 0.0f, 0.0f,  1.0f,
+	0.990f,  -0.980f,   0.0f, 0.0f, 0.0f,  1.0f,
+	0.990f,   0.980f,   0.0f, 0.0f, 0.0f,  1.0f
 };
 GLfloat vertexDataScoreMarker[6000];
 
@@ -135,17 +142,18 @@ GLint vertexColorLocation; //GLuint that we'll fill in with the location of the 
 GLint offsetLocation;
 GLint uniRotation;
 
-GLuint vertexDataBufferObject;
-GLuint vertexDataBufferObject2;
+GLuint vertexDataBufferObjectLeftPaddle;
+GLuint vertexDataBufferObjectRightPaddle;
 GLuint vertexDataBufferObjectBall;
-GLuint vertexArrayObject;
-GLuint vertexArrayObject2;
+GLuint vertexDataBufferObjectBoundry;
+GLuint vertexArrayObjectLeftPaddle;
+GLuint vertexArrayObjectRightPaddle;
 GLuint vertexArrayObjectBall;
+GLuint vertexArrayObjectBoundry;
 // end::GLVariables[]
 
 // tag::glmVariables[]
 glm::mat4 rotation;
-glm::mat4 translation;
 // end::glmVariables[]
 
 // end Global Variables
@@ -334,11 +342,11 @@ void initializeVertexArrayObject()
 {
 	// Left Paddle
 
-	glGenVertexArrays(1, &vertexArrayObject); //create a Vertex Array Object
-	cout << "Vertex Array Object created OK! GLUint is: " << vertexArrayObject << std::endl;
+	glGenVertexArrays(1, &vertexArrayObjectLeftPaddle); //create a Vertex Array Object
+	cout << "Vertex Array Object created OK! GLUint is: " << vertexArrayObjectLeftPaddle << std::endl;
 
-	glBindVertexArray(vertexArrayObject); //make the just created vertexArrayObject the active one
-	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObject); //bind vertexDataBufferObject
+	glBindVertexArray(vertexArrayObjectLeftPaddle); //make the just created vertexArrayObject the active one
+	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObjectLeftPaddle); //bind vertexDataBufferObject
 	glEnableVertexAttribArray(positionLocation); //enable attribute at index positionLocation
 	glEnableVertexAttribArray(vertexColorLocation); //enable attribute at index vertexColorLocation
 	glVertexAttribPointer(positionLocation, 2, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(0 * sizeof(GLfloat))); //specify that position data contains four floats per vertex, and goes into attribute index positionLocation
@@ -347,11 +355,11 @@ void initializeVertexArrayObject()
 
 	// Right Paddle
 
-	glGenVertexArrays(1, &vertexArrayObject2); 
-	cout << "Vertex Array Object created OK! GLUint is: " << vertexArrayObject2 << std::endl;
+	glGenVertexArrays(1, &vertexArrayObjectRightPaddle);
+	cout << "Vertex Array Object created OK! GLUint is: " << vertexArrayObjectRightPaddle << std::endl;
 
-	glBindVertexArray(vertexArrayObject2); 
-	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObject2); 
+	glBindVertexArray(vertexArrayObjectRightPaddle);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObjectRightPaddle); 
 	glEnableVertexAttribArray(positionLocation); 
 	glEnableVertexAttribArray(vertexColorLocation); 
 	glVertexAttribPointer(positionLocation, 2, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(0 * sizeof(GLfloat))); 
@@ -360,16 +368,29 @@ void initializeVertexArrayObject()
 
 	// Ball
 
-	glGenVertexArrays(1, &vertexArrayObjectBall); 
+	glGenVertexArrays(1, &vertexArrayObjectBall);
 	cout << "Vertex Array Object created OK! GLUint is: " << vertexArrayObjectBall << std::endl;
 
-	glBindVertexArray(vertexArrayObjectBall); 
+	glBindVertexArray(vertexArrayObjectBall);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObjectBall); 
 	glEnableVertexAttribArray(positionLocation); 
 	glEnableVertexAttribArray(vertexColorLocation); 
 	glVertexAttribPointer(positionLocation, 2, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(0 * sizeof(GLfloat))); 
 	glVertexAttribPointer(vertexColorLocation, 4, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(2 * sizeof(GLfloat))); 
 	glBindVertexArray(0); 
+
+	// Boundry
+
+	glGenVertexArrays(1, &vertexArrayObjectBoundry);
+	cout << "Vertex Array Object created OK! GLUint is: " << vertexArrayObjectBoundry << std::endl;
+
+	glBindVertexArray(vertexArrayObjectBoundry);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObjectBoundry);
+	glEnableVertexAttribArray(positionLocation);
+	glEnableVertexAttribArray(vertexColorLocation);
+	glVertexAttribPointer(positionLocation, 2, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(0 * sizeof(GLfloat)));
+	glVertexAttribPointer(vertexColorLocation, 4, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(2 * sizeof(GLfloat)));
+	glBindVertexArray(0);
 
 	// Cleanup
 
@@ -384,20 +405,20 @@ void initializeVertexBuffer()
 {
 
 	// Left Paddle
-	glGenBuffers(1, &vertexDataBufferObject);
+	glGenBuffers(1, &vertexDataBufferObjectLeftPaddle);
 
-	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObject);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObjectLeftPaddle);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexDataLeftPaddle), vertexDataLeftPaddle, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	cout << "vertexDataBufferObject created OK! GLUint is: " << vertexDataBufferObject << std::endl;
+	cout << "vertexDataBufferObject created OK! GLUint is: " << vertexDataBufferObjectLeftPaddle << std::endl;
 
 	// Right Paddle
-	glGenBuffers(1, &vertexDataBufferObject2);
+	glGenBuffers(1, &vertexDataBufferObjectRightPaddle);
 
-	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObject2);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObjectRightPaddle);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexDataRightPaddle), vertexDataRightPaddle, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	cout << "vertexDataBufferObject2 created OK! GLUint is: " << vertexDataBufferObject2 << std::endl;
+	cout << "vertexDataBufferObject2 created OK! GLUint is: " << vertexDataBufferObjectRightPaddle << std::endl;
 
 	// Ball
 	glGenBuffers(1, &vertexDataBufferObjectBall);
@@ -406,6 +427,14 @@ void initializeVertexBuffer()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexDataBall), vertexDataBall, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	cout << "vertexDataBufferObjectBall created OK! GLUint is: " << vertexDataBufferObjectBall << std::endl;
+
+	// Ball
+	glGenBuffers(1, &vertexDataBufferObjectBoundry);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObjectBoundry);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexDataBoundry), vertexDataBoundry, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	cout << "vertexDataBufferObjectBoundry created OK! GLUint is: " << vertexDataBufferObjectBoundry << std::endl;
 
 	initializeVertexArrayObject();
 }
@@ -546,19 +575,21 @@ void BallWindowCollisions(float ballTop, float ballBottom, float ballRight, floa
 	{
 		ballYDirection *= -1;
 	}
-	else if (ballBottom <= -1.0f)
+	else if (ballBottom <= -0.95f)
 	{
 		ballYDirection *= -1;
 	}
 	// Back Walls (Opposing player scores a point)
 	if (ballRight >= 1.0f)
 	{
-		playerOneScore++;
+		if(playerOneScore < 5)
+			playerOneScore++;
 		ResetBall();
 	}
 	else if (ballLeft <= -1.0f)
 	{
-		playerTwoScore++;
+		if(playerTwoScore < 5)
+			playerTwoScore++;
 		ResetBall();
 	}
 }
@@ -566,30 +597,30 @@ void BallWindowCollisions(float ballTop, float ballBottom, float ballRight, floa
 void BallController()
 {
 	// Current ball vertice positions
-	float ball_leftXVertice = 0.000f + ballOffset[0];
-	float ball_rightXVertice = 0.030f + ballOffset[0];
-	float ball_topYVertice = 0.030f + ballOffset[1];
-	float ball_bottomYVertice = 0.000f + ballOffset[1];
+	float ball_leftXVertice = -0.015f + ballOffset[0];
+	float ball_rightXVertice = 0.015f + ballOffset[0];
+	float ball_topYVertice = 0.015f + ballOffset[1];
+	float ball_bottomYVertice = -0.015f + ballOffset[1];
 	float ball_midY = (ball_topYVertice + ball_bottomYVertice) / 2;
 	float ballYImpactPoint;
 
 	// Current left paddle vertice positions
 	float leftPaddle_leftXVertice = -0.875f + leftPaddleOffset[0];
 	float leftPaddle_rightXVertice = -0.855f + leftPaddleOffset[0];
-	float leftPaddle_topYVertice = 0.300f + leftPaddleOffset[1];
-	float leftPaddle_bottomYVertice = 0.000f + leftPaddleOffset[1];
+	float leftPaddle_topYVertice = 0.150f + leftPaddleOffset[1];
+	float leftPaddle_bottomYVertice = -0.150f + leftPaddleOffset[1];
 	float leftPaddle_midY = (leftPaddle_topYVertice + leftPaddle_bottomYVertice) / 2;
 
 	// Current right paddle vertice positions
 	float rightPaddle_leftXVertice = 0.855f + rightPaddleOffset[0];
 	float rightPaddle_rightXVertice = 0.875f + rightPaddleOffset[0];
-	float rightPaddle_topYVertice = 0.300f + rightPaddleOffset[1];
-	float rightPaddle_bottomYVertice = 0.000f + rightPaddleOffset[1];
+	float rightPaddle_topYVertice = 0.150f + rightPaddleOffset[1];
+	float rightPaddle_bottomYVertice = -0.150f + rightPaddleOffset[1];
 	float rightPaddle_midY = (rightPaddle_topYVertice + rightPaddle_bottomYVertice) / 2;
 
 	// Left/Right ball movement
 	// Bouncing off right paddle
-	if (ball_rightXVertice > (rightPaddle_leftXVertice + 0.02f)
+	if (ball_rightXVertice > (rightPaddle_leftXVertice - 0.023f)
 		&& ball_leftXVertice < rightPaddle_rightXVertice
 		&& ball_topYVertice > rightPaddle_bottomYVertice 
 		&& ball_bottomYVertice < rightPaddle_topYVertice)
@@ -597,7 +628,7 @@ void BallController()
 		BounceBallOffPaddle(ball_midY, rightPaddle_midY, rightPaddle_topYVertice, rightPaddle_bottomYVertice);
 	}
 	// Bouncing off left paddle
-	else if (ball_leftXVertice < (leftPaddle_rightXVertice + 0.035f)
+	else if (ball_leftXVertice < (leftPaddle_rightXVertice - 0.01f)
 		&& ball_rightXVertice > leftPaddle_leftXVertice
 		&& ball_topYVertice > leftPaddle_bottomYVertice
 		&& ball_bottomYVertice < leftPaddle_topYVertice)
@@ -616,20 +647,20 @@ void updateSimulation(double simLength = 0.02) //update simulation with an amoun
 	// see, for example, http://headerphile.blogspot.co.uk/2014/07/part-9-no-more-delays.html
 	//CHANGE ME
 
-	if (wDown && leftPaddleOffset[1] < 0.66f)
+	if (wDown && leftPaddleOffset[1] < 0.8f)
 	{
 		leftPaddleOffset[1] += 0.025f;
 	}
-	else if (sDown && leftPaddleOffset[1] > -0.95f)
+	else if (sDown && leftPaddleOffset[1] > -0.8f)
 	{
 		leftPaddleOffset[1] -= 0.025f;
 	}
 
-	if (upArrowDown && rightPaddleOffset[1] < 0.66f)
+	if (upArrowDown && rightPaddleOffset[1] < 0.8f)
 	{
 		rightPaddleOffset[1] += 0.025f;
 	}
-	else if (downArrowDown && rightPaddleOffset[1] > -0.95f)
+	else if (downArrowDown && rightPaddleOffset[1] > -0.8f)
 	{
 		rightPaddleOffset[1] -= 0.025f;
 	}
@@ -645,25 +676,35 @@ void updateSimulation(double simLength = 0.02) //update simulation with an amoun
 void preRender()
 {
 	glViewport(0, 0, 1000, 600); //set viewpoint
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); //set clear colour
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f); //set clear colour
 	glClear(GL_COLOR_BUFFER_BIT); //clear the window (technical the scissor box bounds)
 }
 // end::preRender[]
 
-void renderScoreMarker(float rightX, float leftX, float modifier)
+void renderScoreMarker(float rightX, float modifier)
 {
 
 	GLuint tempVertexDataBufferObject;
 	GLuint tempVertexArrayObject;
 	float interballOffset;
+	float R;
+	float G;
+	float B;
+	float A = 1.0f;
 
 	if (rightX > 1)
 	{
-		interballOffset = -0.34f;
+		//interballOffset = -0.24f;
+		R = 0.5f;
+		G = 0.25f;
+		B = 0.9f;
 	}
 	else
 	{
-		interballOffset = 0.34f;
+		//interballOffset = 0.24f;
+		R = 0.9f;
+		G = 0.5f;
+		B = 0.25f;
 	}
 
 	// Generate vertex data for a circle with ~1000 triangles
@@ -671,22 +712,22 @@ void renderScoreMarker(float rightX, float leftX, float modifier)
 	{
 		float theta = 2.0f * M_PI * float(i) / float(1000);
 
-		float xAngle = 0.045f * cosf(theta);
-		float yAngle = 0.06f * sinf(theta);
+		float xAngle = 0.03f * cosf(theta);
+		float yAngle = 0.04f * sinf(theta);
 
-		vertexDataScoreMarker[i] = xAngle + rightX + modifier - interballOffset; // X axis - Take the generated x axis and apply the rightX offset and modifier
-		vertexDataScoreMarker[i + 1] = yAngle + 0.915f; // Y axis - Move the circle up
-		vertexDataScoreMarker[i + 2] = 1.0f;  // R
-		vertexDataScoreMarker[i + 3] = 1.0f;  // G
-		vertexDataScoreMarker[i + 4] = 1.0f;  // B
-		vertexDataScoreMarker[i + 5] = 1.0f;  // A
+		vertexDataScoreMarker[i] = xAngle + rightX + modifier; // X axis - Take the generated x axis and apply the rightX offset and modifier
+		vertexDataScoreMarker[i + 1] = yAngle + 0.905f; // Y axis - Move the circle up
+		vertexDataScoreMarker[i + 2] = R;  // R
+		vertexDataScoreMarker[i + 3] = G;  // G
+		vertexDataScoreMarker[i + 4] = B;  // B
+		vertexDataScoreMarker[i + 5] = A;  // A
 
-		vertexDataScoreMarker[i + 6] = xAngle + rightX + modifier - interballOffset; // X
-		vertexDataScoreMarker[i + 7] = (yAngle * -1) + 0.915f; // Y
-		vertexDataScoreMarker[i + 8] = 1.0f;  // R
-		vertexDataScoreMarker[i + 9] = 1.0f;  // G
-		vertexDataScoreMarker[i + 10] = 1.0f; // B
-		vertexDataScoreMarker[i + 11] = 1.0f; // A
+		vertexDataScoreMarker[i + 6] = xAngle + rightX + modifier; // X
+		vertexDataScoreMarker[i + 7] = (yAngle * -1) + 0.905f; // Y
+		vertexDataScoreMarker[i + 8] = R;  // R
+		vertexDataScoreMarker[i + 9] = G;  // G
+		vertexDataScoreMarker[i + 10] = B; // B
+		vertexDataScoreMarker[i + 11] = A; // A
 	}
 
 	glGenBuffers(1, &tempVertexDataBufferObject);
@@ -720,24 +761,21 @@ void renderScoreMarker(float rightX, float leftX, float modifier)
 void renderScoreMarkers(float index, bool playerOneScored)
 {
 
-	float leftX;
 	float rightX;
 	float modifier;
 
 	if (playerOneScored)
 	{
-		leftX = -1.170f;
-		rightX = -1.140f;
-		modifier = ((index/2.00f) + 2.30f) / 4.00f;
+		rightX = -1.320f;
+		modifier = ((index/2.00f) + 2.30f) / 6.00f;
 	}
 	else
 	{
-		leftX = 1.170f;
-		rightX = 1.140f;
-		modifier = ((-index / 2.00f) - 2.30f) / 4.00f;
+		rightX = 1.320f;
+		modifier = ((-index / 2.00f) - 2.30f) / 6.00f;
 	}
 
-	renderScoreMarker(leftX, rightX, modifier);
+	renderScoreMarker(rightX, modifier);
 	
 }
 
@@ -746,15 +784,21 @@ void render()
 {
 	glUseProgram(theProgram); //installs the program object specified by program as part of current rendering state
 
+	// Boundry
+	glUniform2f(offsetLocation, 0, 0);
+	glBindVertexArray(vertexArrayObjectBoundry);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glBindVertexArray(0);
+
 	// Left Paddle
 	glUniform2f(offsetLocation, leftPaddleOffset[0], leftPaddleOffset[1]);
-	glBindVertexArray(vertexArrayObject);
+	glBindVertexArray(vertexArrayObjectLeftPaddle);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); 
 	glBindVertexArray(0);
 
 	// Right Paddle
 	glUniform2f(offsetLocation, rightPaddleOffset[0], rightPaddleOffset[1]);
-	glBindVertexArray(vertexArrayObject2);
+	glBindVertexArray(vertexArrayObjectRightPaddle);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); 
 	glBindVertexArray(0);
 
@@ -767,9 +811,9 @@ void render()
 	{
 		rotateAngle += 5.0f;
 	}
-	rotation = glm::translate(rotation, glm::vec3(ballOffset[0] - 0.015f, ballOffset[1] - 0.015f, 0.0f));
+	rotation = glm::translate(rotation, glm::vec3(ballOffset[0] + 0.015f, ballOffset[1], 0.0f));
 	rotation = glm::rotate(rotation, glm::radians(rotateAngle), glm::vec3(0.0f, 0.0f, 1.0f));
-	rotation = glm::translate(rotation, glm::vec3(-ballOffset[0] - 0.015f, -ballOffset[1] - 0.015f, 0.0f));
+	rotation = glm::translate(rotation, glm::vec3(-ballOffset[0], -ballOffset[1], 0.0f));
 	glUniformMatrix4fv(uniRotation, 1, GL_FALSE, glm::value_ptr(rotation));
 
 	glUniform2f(offsetLocation, ballOffset[0], ballOffset[1]);

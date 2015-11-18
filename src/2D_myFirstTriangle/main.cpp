@@ -80,8 +80,8 @@ GLuint theProgram; //GLuint that we'll fill in to refer to the GLSL program (onl
 GLint positionLocation; //GLuint that we'll fill in with the location of the `position` attribute in the GLSL
 GLint colorLocation; //GLuint that we'll fill in with the location of the `color` variable in the GLSL
 
-GLuint vertexDataBufferObject;
-GLuint vertexArrayObject;
+GLuint vertexDataBufferObjectLeftPaddle;
+GLuint vertexArrayObjectLeftPaddle;
 
 // end::ourVariables[]
 
@@ -267,12 +267,12 @@ void initializeProgram()
 //setup a GL object (a VertexArrayObject) that stores how to access data and from where
 void initializeVertexArrayObject()
 {
-	glGenVertexArrays(1, &vertexArrayObject); //create a Vertex Array Object
-	cout << "Vertex Array Object created OK! GLUint is: " << vertexArrayObject << std::endl;
+	glGenVertexArrays(1, &vertexArrayObjectLeftPaddle); //create a Vertex Array Object
+	cout << "Vertex Array Object created OK! GLUint is: " << vertexArrayObjectLeftPaddle << std::endl;
 
-	glBindVertexArray(vertexArrayObject); //make the just created vertexArrayObject the active one
+	glBindVertexArray(vertexArrayObjectLeftPaddle); //make the just created vertexArrayObject the active one
 
-		glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObject); //bind vertexDataBufferObject
+		glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObjectLeftPaddle); //bind vertexDataBufferObject
 
 		glEnableVertexAttribArray(positionLocation); //enable attribute at index positionLocation
 
@@ -290,12 +290,12 @@ void initializeVertexArrayObject()
 // tag::initializeVertexBuffer[]
 void initializeVertexBuffer()
 {
-	glGenBuffers(1, &vertexDataBufferObject);
+	glGenBuffers(1, &vertexDataBufferObjectLeftPaddle);
 
-	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObject);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObjectLeftPaddle);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexDataLeftPaddle), vertexDataLeftPaddle, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	cout << "vertexDataBufferObject created OK! GLUint is: " << vertexDataBufferObject << std::endl;
+	cout << "vertexDataBufferObject created OK! GLUint is: " << vertexDataBufferObjectLeftPaddle << std::endl;
 
 	initializeVertexArrayObject();
 }
@@ -384,7 +384,7 @@ void render()
 		//alternatively, use glUnivform2fv
 		//glUniform2fv(colorLocation, 1, color); //Note: the count is 1, because we are setting a single uniform vec2 - https://www.opengl.org/wiki/GLSL_:_common_mistakes#How_to_use_glUniform
 
-	glBindVertexArray(vertexArrayObject);
+	glBindVertexArray(vertexArrayObjectLeftPaddle);
 
 	glDrawArrays(GL_TRIANGLES, 0, 3); //Draw something, using Triangles, and 3 vertices - i.e. one lonely triangle
 
