@@ -1,20 +1,19 @@
-﻿Build started 30/11/2015 13:21:44.
+﻿Build started 30/11/2015 14:56:26.
      1>Project "C:\Users\Computing\Documents\GitHub\3DGraphics\src\2D_triangleColorPerVertex\2D_triangleColorPerVertex.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c /I..\..\graphics_dependencies\SDL2\include /I..\..\graphics_dependencies\glew\include /I..\..\graphics_dependencies\glm /ZI /nologo /W3 /WX- /Od /Oy- /D DEBUG /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"obj\Debug\\" /Fd".\2D_triangleColorPerVertex-debug.pdb" /Gd /TP /analyze- /errorReport:prompt  main.cpp
          main.cpp
      1>CL : warning : the compiler may not be C++11 compliant. __cplusplus version is : 199711L
-     1>c:\users\computing\documents\github\3dgraphics\src\2d_trianglecolorpervertex\main.cpp(564): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
-     1>c:\users\computing\documents\github\3dgraphics\src\2d_trianglecolorpervertex\main.cpp(612): warning C4101: 'ballYImpactPoint': unreferenced local variable
-     1>c:\users\computing\documents\github\3dgraphics\src\2d_trianglecolorpervertex\main.cpp(718): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-     1>c:\users\computing\documents\github\3dgraphics\src\2d_trianglecolorpervertex\main.cpp(844): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-     1>c:\users\computing\documents\github\3dgraphics\src\2d_trianglecolorpervertex\main.cpp(849): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+     1>c:\users\computing\documents\github\3dgraphics\src\2d_trianglecolorpervertex\main.cpp(577): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
+     1>c:\users\computing\documents\github\3dgraphics\src\2d_trianglecolorpervertex\main.cpp(625): warning C4101: 'ballYImpactPoint': unreferenced local variable
+     1>c:\users\computing\documents\github\3dgraphics\src\2d_trianglecolorpervertex\main.cpp(731): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+     1>c:\users\computing\documents\github\3dgraphics\src\2d_trianglecolorpervertex\main.cpp(868): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+     1>c:\users\computing\documents\github\3dgraphics\src\2d_trianglecolorpervertex\main.cpp(873): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:".\2D_triangleColorPerVertex-debug.exe" /INCREMENTAL /NOLOGO /LIBPATH:..\..\graphics_dependencies\glew\lib\Release\Win32 /LIBPATH:..\..\graphics_dependencies\SDL2\lib\win32 SDL2.lib SDL2main.lib opengl32.lib glew32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:".\2D_triangleColorPerVertex-debug.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /ENTRY:"mainCRTStartup" /DYNAMICBASE /NXCOMPAT /IMPLIB:".\2D_triangleColorPerVertex-debug.lib" /MACHINE:X86 /NODEFAULTLIB:msvcrt obj\Debug\main.obj
-         LINK : .\2D_triangleColorPerVertex-debug.exe not found or not built by the last incremental link; performing full link
          2D_triangleColorPerVertex.vcxproj -> C:\Users\Computing\Documents\GitHub\3DGraphics\src\2D_triangleColorPerVertex\.\2D_triangleColorPerVertex-debug.exe
      1>Done Building Project "C:\Users\Computing\Documents\GitHub\3DGraphics\src\2D_triangleColorPerVertex\2D_triangleColorPerVertex.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:01.50
+Time Elapsed 00:00:01.12

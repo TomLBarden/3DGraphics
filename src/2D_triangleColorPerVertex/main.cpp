@@ -15,7 +15,11 @@
 #include <algorithm>
 #include <string>
 #include <math.h>
+#include <fstream>
+#include <iterator>
+#include <cassert>
 
+#define GLM_FORCE_RADIANS // suppress a warning in GLM 0.9.5
 #include <GL/glew.h>
 #include <SDL.h>
 #include <glm/glm.hpp>
@@ -103,32 +107,37 @@ int playerTwoScore = 0;
 // tag::vertexData[]
 //the data about our geometry
 const GLfloat vertexDataLeftPaddle[] = {
-	// X        Y        R     G     B      A
-	-0.855f,  0.150f,   0.9f, 0.5f, 0.25f,  1.0f,
-	-0.855f, -0.150f,   0.9f, 0.5f, 0.25f,  1.0f,
-	-0.875f,  0.150f,   0.9f, 0.25f, 0.25f,  1.0f,
-	-0.875f, -0.150f,   0.9f, 0.25f, 0.25f,  1.0f
+	// X        Y                R     G     B      A
+	-0.855f,  0.150f, 0.000f, 0.9f, 0.5f, 0.25f,  1.0f,
+	-0.855f, -0.150f, 0.000f, 0.9f, 0.5f, 0.25f,  1.0f,
+	-0.875f,  0.150f, 0.000f, 0.9f, 0.25f, 0.25f,  1.0f,
+	-0.875f, -0.150f, 0.000f, 0.9f, 0.25f, 0.25f,  1.0f
 };
 const GLfloat vertexDataRightPaddle[] = {
-	// X        Y        R     G     B      A
-	0.855f,  0.150f,   0.5f, 0.25f, 0.9f,  1.0f,
-	0.855f, -0.150f,   0.5f, 0.25f, 0.9f,  1.0f,
-	0.875f,  0.150f,   0.25f, 0.25f, 0.9f,  1.0f,
-	0.875f, -0.150f,   0.25f, 0.25f, 0.9f,  1.0f
+	// X        Y              R     G     B      A
+	0.855f,  0.150f, 0.000f, 0.5f, 0.25f, 0.9f,  1.0f,
+	0.855f, -0.150f, 0.000f, 0.5f, 0.25f, 0.9f,  1.0f,
+	0.875f,  0.150f, 0.000f, 0.25f, 0.25f, 0.9f,  1.0f,
+	0.875f, -0.150f, 0.000f, 0.25f, 0.25f, 0.9f,  1.0f
 };
 const GLfloat vertexDataBall[] = {
 	// X        Y        Z     R     G     B      A
 	-0.015f,  0.015f, 0.000f, 1.0f, 1.0f, 1.0f,  1.0f,
 	-0.015f, -0.015f, 0.000f, 1.0f, 1.0f, 1.0f,  1.0f,
 	 0.015f,  0.015f, 0.000f, 1.0f, 1.0f, 1.0f,  1.0f,
-	 0.015f, -0.015f, 0.000f, 1.0f, 1.0f, 1.0f,  1.0f
+	 0.015f, -0.015f, 0.000f, 1.0f, 1.0f, 1.0f,  1.0f,
+
+	-0.015f,  0.015f, -0.030f, 1.0f, 1.0f, 1.0f,  1.0f,
+	-0.015f, -0.015f, -0.030f, 1.0f, 1.0f, 1.0f,  1.0f,
+	 0.015f,  0.015f, -0.030f, 1.0f, 1.0f, 1.0f,  1.0f,
+	 0.015f, -0.015f, -0.030f, 1.0f, 1.0f, 1.0f,  1.0f
 };
 const GLfloat vertexDataBoundry[] = {
-	// X        Y        R     G     B      A
-	-0.990f, -0.980f,   0.0f, 0.0f, 0.0f,  1.0f,
-	-0.990f,  0.980f,   0.0f, 0.0f, 0.0f,  1.0f,
-	0.990f,  -0.980f,   0.0f, 0.0f, 0.0f,  1.0f,
-	0.990f,   0.980f,   0.0f, 0.0f, 0.0f,  1.0f
+	// X        Y        Z      R     G     B      A
+	-0.990f, -0.980f, 0.500f, 0.0f, 0.0f, 0.0f,  1.0f,
+	-0.990f,  0.980f, 0.500f, 0.0f, 0.0f, 0.0f,  1.0f,
+	 0.990f,  -0.980f, 0.500f, 0.0f, 0.0f, 0.0f,  1.0f,
+	 0.990f,   0.980f, 0.500f, 0.0f, 0.0f, 0.0f,  1.0f
 };
 GLfloat vertexDataScoreMarker[6000];
 
@@ -144,6 +153,8 @@ GLuint theProgram; //GLuint that we'll fill in to refer to the GLSL program (onl
 GLint positionLocation; //GLuint that we'll fill in with the location of the `position` attribute in the GLSL
 GLint vertexColorLocation; //GLuint that we'll fill in with the location of the `vertexColor` attribute in the GLSL
 GLint offsetLocation;
+GLint projectionMatrixLocation;
+GLint viewMatrixLocation;
 GLint uniRotation;
 
 GLuint vertexDataBufferObjectLeftPaddle;
@@ -332,6 +343,8 @@ void initializeProgram()
 
 	positionLocation = glGetAttribLocation(theProgram, "position");
 	offsetLocation = glGetUniformLocation(theProgram, "offset");
+	projectionMatrixLocation = glGetUniformLocation(theProgram, "projectionMatrix");
+	viewMatrixLocation = glGetUniformLocation(theProgram, "viewMatrix");
 	uniRotation = glGetUniformLocation(theProgram, "rotation");
 	glUniformMatrix4fv(uniRotation, 1, GL_FALSE, glm::value_ptr(rotation));
 	vertexColorLocation = glGetAttribLocation(theProgram, "vertexColor");
@@ -353,8 +366,8 @@ void initializeVertexArrayObject()
 	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObjectLeftPaddle); //bind vertexDataBufferObject
 	glEnableVertexAttribArray(positionLocation); //enable attribute at index positionLocation
 	glEnableVertexAttribArray(vertexColorLocation); //enable attribute at index vertexColorLocation
-	glVertexAttribPointer(positionLocation, 2, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(0 * sizeof(GLfloat))); //specify that position data contains four floats per vertex, and goes into attribute index positionLocation
-	glVertexAttribPointer(vertexColorLocation, 4, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(2 * sizeof(GLfloat))); //specify that position data contains four floats per vertex, and goes into attribute index positionLocation
+	glVertexAttribPointer(positionLocation, 3, GL_FLOAT, GL_FALSE, (7 * sizeof(GL_FLOAT)), (GLvoid *)(0 * sizeof(GLfloat))); //specify that position data contains four floats per vertex, and goes into attribute index positionLocation
+	glVertexAttribPointer(vertexColorLocation, 4, GL_FLOAT, GL_FALSE, (7 * sizeof(GL_FLOAT)), (GLvoid *)(3 * sizeof(GLfloat))); //specify that position data contains four floats per vertex, and goes into attribute index positionLocation
 	glBindVertexArray(0); //unbind the vertexArrayObject so we can't change it
 
 						  // Right Paddle
@@ -366,8 +379,8 @@ void initializeVertexArrayObject()
 	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObjectRightPaddle);
 	glEnableVertexAttribArray(positionLocation);
 	glEnableVertexAttribArray(vertexColorLocation);
-	glVertexAttribPointer(positionLocation, 2, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(0 * sizeof(GLfloat)));
-	glVertexAttribPointer(vertexColorLocation, 4, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(2 * sizeof(GLfloat)));
+	glVertexAttribPointer(positionLocation, 3, GL_FLOAT, GL_FALSE, (7 * sizeof(GL_FLOAT)), (GLvoid *)(0 * sizeof(GLfloat)));
+	glVertexAttribPointer(vertexColorLocation, 4, GL_FLOAT, GL_FALSE, (7 * sizeof(GL_FLOAT)), (GLvoid *)(3 * sizeof(GLfloat)));
 	glBindVertexArray(0);
 
 	// Ball
@@ -392,8 +405,8 @@ void initializeVertexArrayObject()
 	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObjectBoundry);
 	glEnableVertexAttribArray(positionLocation);
 	glEnableVertexAttribArray(vertexColorLocation);
-	glVertexAttribPointer(positionLocation, 2, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(0 * sizeof(GLfloat)));
-	glVertexAttribPointer(vertexColorLocation, 4, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(2 * sizeof(GLfloat)));
+	glVertexAttribPointer(positionLocation, 3, GL_FLOAT, GL_FALSE, (7 * sizeof(GL_FLOAT)), (GLvoid *)(0 * sizeof(GLfloat)));
+	glVertexAttribPointer(vertexColorLocation, 4, GL_FLOAT, GL_FALSE, (7 * sizeof(GL_FLOAT)), (GLvoid *)(3 * sizeof(GLfloat)));
 	glBindVertexArray(0);
 
 	// Cleanup
@@ -797,7 +810,18 @@ void render()
 {
 	glUseProgram(theProgram); //installs the program object specified by program as part of current rendering state
 
-							  // Boundry
+	//glEnable(GL_DEPTH_TEST);
+	//glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+	glm::mat4 projection;
+	projection = glm::perspective(45.0f, 1.0f, 0.1f, 100.0f);
+	glUniformMatrix4fv(projectionMatrixLocation, 1, false, glm::value_ptr(projection));
+
+	glm::mat4 view;
+	view = glm::lookAt(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	glUniformMatrix4fv(viewMatrixLocation, 1, false, glm::value_ptr(view));
+
+	// Boundry
 	glUniform2f(offsetLocation, 0, 0);
 	glBindVertexArray(vertexArrayObjectBoundry);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -825,13 +849,13 @@ void render()
 		rotateAngle += 5.0f;
 	}
 	rotation = glm::translate(rotation, glm::vec3(ballOffset[0] + 0.015f, ballOffset[1], 0.0f));
-	rotation = glm::rotate(rotation, glm::radians(rotateAngle), glm::vec3(0.0f, 0.0f, 1.0f));
+	rotation = glm::rotate(rotation, glm::radians(rotateAngle), glm::vec3(0.0f, 1.0f, 1.0f));
 	rotation = glm::translate(rotation, glm::vec3(-ballOffset[0], -ballOffset[1], 0.0f));
 	glUniformMatrix4fv(uniRotation, 1, GL_FALSE, glm::value_ptr(rotation));
 
 	glUniform2f(offsetLocation, ballOffset[0], ballOffset[1]);
 	glBindVertexArray(vertexArrayObjectBall);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 8);
 	glBindVertexArray(0);
 
 	// Reset rotation
