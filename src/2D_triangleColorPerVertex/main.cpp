@@ -50,18 +50,22 @@ std::string frameLine = "";
 const std::string strVertexShader = R"(
 	#version 330
 
-	in vec2 position;
+		in vec2 position;
 	in vec4 vertexColor;
 
-	out vec4 fragmentColor;
+		out vec4 fragmentColor;
 
-	uniform vec2 offset;
+		uniform vec2 offset;
 	uniform mat4 rotation;
 
-	void main()
+		uniform mat4 modelMatrix      = mat4(1.0);
+	uniform mat4 viewMatrix       = mat4(1.0);
+	uniform mat4 projectionMatrix = mat4(1.0);
+
+		void main()
 	{
 		vec2 tempPos = position + offset;
-		gl_Position = rotation * vec4(tempPos, 0.0, 1.0);
+		gl_Position = projectionMatrix * viewMatrix * modelMatrix * rotation * vec4(tempPos, 0.0, 1.0);
 		fragmentColor = vertexColor;
 	}
 )";
@@ -107,17 +111,17 @@ const GLfloat vertexDataLeftPaddle[] = {
 };
 const GLfloat vertexDataRightPaddle[] = {
 	// X        Y        R     G     B      A
-	 0.855f,  0.150f,   0.5f, 0.25f, 0.9f,  1.0f,
-     0.855f, -0.150f,   0.5f, 0.25f, 0.9f,  1.0f,
-	 0.875f,  0.150f,   0.25f, 0.25f, 0.9f,  1.0f,
-	 0.875f, -0.150f,   0.25f, 0.25f, 0.9f,  1.0f
+	0.855f,  0.150f,   0.5f, 0.25f, 0.9f,  1.0f,
+	0.855f, -0.150f,   0.5f, 0.25f, 0.9f,  1.0f,
+	0.875f,  0.150f,   0.25f, 0.25f, 0.9f,  1.0f,
+	0.875f, -0.150f,   0.25f, 0.25f, 0.9f,  1.0f
 };
 const GLfloat vertexDataBall[] = {
-	// X        Y        R     G     B      A
-	-0.015f,  0.015f,   1.0f, 1.0f, 1.0f,  1.0f,
-	-0.015f, -0.015f,   1.0f, 1.0f, 1.0f,  1.0f,
-	 0.015f,  0.015f,   1.0f, 1.0f, 1.0f,  1.0f,
-	 0.015f, -0.015f,   1.0f, 1.0f, 1.0f,  1.0f
+	// X        Y        Z     R     G     B      A
+	-0.015f,  0.015f, 0.000f, 1.0f, 1.0f, 1.0f,  1.0f,
+	-0.015f, -0.015f, 0.000f, 1.0f, 1.0f, 1.0f,  1.0f,
+	 0.015f,  0.015f, 0.000f, 1.0f, 1.0f, 1.0f,  1.0f,
+	 0.015f, -0.015f, 0.000f, 1.0f, 1.0f, 1.0f,  1.0f
 };
 const GLfloat vertexDataBoundry[] = {
 	// X        Y        R     G     B      A
@@ -183,7 +187,7 @@ void createWindow()
 	//create window
 	win = SDL_CreateWindow(exeNameCStr, 100, 100, 1000, 600, SDL_WINDOW_OPENGL); //same height and width makes the window square ...
 
-																				//error handling
+																				 //error handling
 	if (win == nullptr)
 	{
 		std::cout << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
@@ -353,18 +357,18 @@ void initializeVertexArrayObject()
 	glVertexAttribPointer(vertexColorLocation, 4, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(2 * sizeof(GLfloat))); //specify that position data contains four floats per vertex, and goes into attribute index positionLocation
 	glBindVertexArray(0); //unbind the vertexArrayObject so we can't change it
 
-	// Right Paddle
+						  // Right Paddle
 
 	glGenVertexArrays(1, &vertexArrayObjectRightPaddle);
 	cout << "Vertex Array Object created OK! GLUint is: " << vertexArrayObjectRightPaddle << std::endl;
 
 	glBindVertexArray(vertexArrayObjectRightPaddle);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObjectRightPaddle); 
-	glEnableVertexAttribArray(positionLocation); 
-	glEnableVertexAttribArray(vertexColorLocation); 
-	glVertexAttribPointer(positionLocation, 2, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(0 * sizeof(GLfloat))); 
-	glVertexAttribPointer(vertexColorLocation, 4, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(2 * sizeof(GLfloat))); 
-	glBindVertexArray(0); 
+	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObjectRightPaddle);
+	glEnableVertexAttribArray(positionLocation);
+	glEnableVertexAttribArray(vertexColorLocation);
+	glVertexAttribPointer(positionLocation, 2, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(0 * sizeof(GLfloat)));
+	glVertexAttribPointer(vertexColorLocation, 4, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(2 * sizeof(GLfloat)));
+	glBindVertexArray(0);
 
 	// Ball
 
@@ -372,12 +376,12 @@ void initializeVertexArrayObject()
 	cout << "Vertex Array Object created OK! GLUint is: " << vertexArrayObjectBall << std::endl;
 
 	glBindVertexArray(vertexArrayObjectBall);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObjectBall); 
-	glEnableVertexAttribArray(positionLocation); 
-	glEnableVertexAttribArray(vertexColorLocation); 
-	glVertexAttribPointer(positionLocation, 2, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(0 * sizeof(GLfloat))); 
-	glVertexAttribPointer(vertexColorLocation, 4, GL_FLOAT, GL_FALSE, (6 * sizeof(GL_FLOAT)), (GLvoid *)(2 * sizeof(GLfloat))); 
-	glBindVertexArray(0); 
+	glBindBuffer(GL_ARRAY_BUFFER, vertexDataBufferObjectBall);
+	glEnableVertexAttribArray(positionLocation);
+	glEnableVertexAttribArray(vertexColorLocation);
+	glVertexAttribPointer(positionLocation, 3, GL_FLOAT, GL_FALSE, (7 * sizeof(GL_FLOAT)), (GLvoid *)(0 * sizeof(GLfloat)));
+	glVertexAttribPointer(vertexColorLocation, 4, GL_FLOAT, GL_FALSE, (7 * sizeof(GL_FLOAT)), (GLvoid *)(3 * sizeof(GLfloat)));
+	glBindVertexArray(0);
 
 	// Boundry
 
@@ -591,7 +595,7 @@ void BallWindowCollisions(float ballTop, float ballBottom, float ballRight, floa
 	}
 	else if (ballLeft <= -1.0f)
 	{
-		if(playerTwoScore < 6)
+		if (playerTwoScore < 6)
 			playerTwoScore++;
 		ResetBall();
 	}
@@ -625,7 +629,7 @@ void BallController()
 	// Bouncing off right paddle
 	if (ball_rightXVertice > (rightPaddle_leftXVertice - 0.023f)
 		&& ball_leftXVertice < rightPaddle_rightXVertice
-		&& ball_topYVertice > rightPaddle_bottomYVertice 
+		&& ball_topYVertice > rightPaddle_bottomYVertice
 		&& ball_bottomYVertice < rightPaddle_topYVertice)
 	{
 		BounceBallOffPaddle(ball_midY, rightPaddle_midY, rightPaddle_topYVertice, rightPaddle_bottomYVertice);
@@ -718,7 +722,7 @@ void renderScoreMarker(float rightX, float modifier)
 
 		vertexDataScoreMarker[i] = xAngle + rightX + modifier; // X axis - Take the generated x axis and apply the rightX offset and modifier
 		vertexDataScoreMarker[i + 1] = yAngle + 0.905f; // Y axis - Move the circle up
-		// gradient logic
+														// gradient logic
 		if (rightX > 1)
 			vertexDataScoreMarker[i + 2] = gradient; // R - Applys gradient to player two's markers
 		else
@@ -727,7 +731,7 @@ void renderScoreMarker(float rightX, float modifier)
 			vertexDataScoreMarker[i + 3] = gradient; // G - Apply's gradient to player one's markers
 		else
 			vertexDataScoreMarker[i + 3] = G;  // G
-		// end graident logic
+											   // end graident logic
 		vertexDataScoreMarker[i + 4] = B;  // B
 		vertexDataScoreMarker[i + 5] = A;  // A
 
@@ -776,7 +780,7 @@ void renderScoreMarkers(float index, bool playerOneScored)
 	if (playerOneScored)
 	{
 		rightX = -1.320f;
-		modifier = ((index/2.00f) + 2.30f) / 6.00f;
+		modifier = ((index / 2.00f) + 2.30f) / 6.00f;
 	}
 	else
 	{
@@ -785,7 +789,7 @@ void renderScoreMarkers(float index, bool playerOneScored)
 	}
 
 	renderScoreMarker(rightX, modifier);
-	
+
 }
 
 // tag::render[]
@@ -793,7 +797,7 @@ void render()
 {
 	glUseProgram(theProgram); //installs the program object specified by program as part of current rendering state
 
-	// Boundry
+							  // Boundry
 	glUniform2f(offsetLocation, 0, 0);
 	glBindVertexArray(vertexArrayObjectBoundry);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -802,13 +806,13 @@ void render()
 	// Left Paddle
 	glUniform2f(offsetLocation, leftPaddleOffset[0], leftPaddleOffset[1]);
 	glBindVertexArray(vertexArrayObjectLeftPaddle);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); 
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindVertexArray(0);
 
 	// Right Paddle
 	glUniform2f(offsetLocation, rightPaddleOffset[0], rightPaddleOffset[1]);
 	glBindVertexArray(vertexArrayObjectRightPaddle);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); 
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindVertexArray(0);
 
 	// Ball
