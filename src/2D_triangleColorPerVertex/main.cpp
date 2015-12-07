@@ -54,22 +54,22 @@ std::string frameLine = "";
 const std::string strVertexShader = R"(
 	#version 330
 
-		in vec2 position;
+	in vec3 position;
 	in vec4 vertexColor;
 
-		out vec4 fragmentColor;
+	out vec4 fragmentColor;
 
-		uniform vec2 offset;
+	uniform vec3 offset;
 	uniform mat4 rotation;
 
-		uniform mat4 modelMatrix      = mat4(1.0);
+	uniform mat4 modelMatrix      = mat4(1.0);
 	uniform mat4 viewMatrix       = mat4(1.0);
 	uniform mat4 projectionMatrix = mat4(1.0);
 
 		void main()
 	{
-		vec2 tempPos = position + offset;
-		gl_Position = projectionMatrix * viewMatrix * modelMatrix * rotation * vec4(tempPos, 0.0, 1.0);
+		vec3 tempPos = position + offset;
+		gl_Position = projectionMatrix * viewMatrix * modelMatrix * rotation * vec4(tempPos, 1.0);
 		fragmentColor = vertexColor;
 	}
 )";
@@ -108,30 +108,170 @@ int playerTwoScore = 0;
 //the data about our geometry
 const GLfloat vertexDataLeftPaddle[] = {
 	// X        Y                R     G     B      A
-	-0.855f,  0.150f, 0.000f, 0.9f, 0.5f, 0.25f,  1.0f,
-	-0.855f, -0.150f, 0.000f, 0.9f, 0.5f, 0.25f,  1.0f,
-	-0.875f,  0.150f, 0.000f, 0.9f, 0.25f, 0.25f,  1.0f,
-	-0.875f, -0.150f, 0.000f, 0.9f, 0.25f, 0.25f,  1.0f
+	-0.855f,  0.150f, 0.000f, 0.9f, 0.5f, 0.25f,  1.0f, //1
+	-0.855f, -0.150f, 0.000f, 0.9f, 0.5f, 0.25f,  1.0f, //2
+	-0.875f,  0.150f, 0.000f, 0.9f, 0.25f, 0.25f,  1.0f, //3
+
+	-0.855f, -0.150f, 0.000f, 0.9f, 0.5f, 0.25f,  1.0f, //2
+	-0.875f,  0.150f, 0.000f, 0.9f, 0.25f, 0.25f,  1.0f, //3
+	-0.875f, -0.150f, 0.000f, 0.9f, 0.25f, 0.25f,  1.0f, //4
+
+	-0.875f,  0.150f, 0.000f, 0.9f, 0.25f, 0.25f,  1.0f, //3
+	-0.875f, -0.150f, 0.000f, 0.9f, 0.25f, 0.25f,  1.0f, //4
+	-0.855f, -0.150f,-0.030f, 0.9f, 0.5f, 0.25f,  1.0f, //6
+
+	-0.875f,  0.150f, 0.000f, 0.9f, 0.25f, 0.25f,  1.0f, //3
+	-0.855f,  0.150f,-0.030f, 0.9f, 0.5f, 0.25f,  1.0f, //5
+	-0.855f, -0.150f,-0.030f, 0.9f, 0.5f, 0.25f,  1.0f, //6
+
+	-0.855f,  0.150f,-0.030f, 0.9f, 0.5f, 0.25f,  1.0f, //5
+	-0.855f, -0.150f,-0.030f, 0.9f, 0.5f, 0.25f,  1.0f, //6
+	-0.875f,  0.150f,-0.030f, 0.9f, 0.25f, 0.25f,  1.0f, //7
+
+	-0.855f, -0.150f,-0.030f, 0.9f, 0.5f, 0.25f,  1.0f, //6
+	-0.875f,  0.150f,-0.030f, 0.9f, 0.25f, 0.25f,  1.0f, //7
+	-0.875f, -0.150f,-0.030f, 0.9f, 0.25f, 0.25f,  1.0f, //8
+
+	-0.855f,  0.150f, 0.000f, 0.9f, 0.5f, 0.25f,  1.0f, //1
+	-0.855f, -0.150f, 0.000f, 0.9f, 0.5f, 0.25f,  1.0f, //2
+	-0.875f, -0.150f,-0.030f, 0.9f, 0.25f, 0.25f,  1.0f, //8
+
+	-0.855f,  0.150f, 0.000f, 0.9f, 0.5f, 0.25f,  1.0f, //1
+	-0.875f,  0.150f,-0.030f, 0.9f, 0.25f, 0.25f,  1.0f, //7
+	-0.875f, -0.150f,-0.030f, 0.9f, 0.25f, 0.25f,  1.0f, //8
+
+	-0.855f, -0.150f, 0.000f, 0.9f, 0.5f, 0.25f,  1.0f, //2
+	-0.875f, -0.150f, 0.000f, 0.9f, 0.25f, 0.25f,  1.0f, //4
+	-0.855f, -0.150f,-0.030f, 0.9f, 0.5f, 0.25f,  1.0f, //6
+
+	-0.855f, -0.150f, 0.000f, 0.9f, 0.5f, 0.25f,  1.0f, //2
+	-0.855f, -0.150f,-0.030f, 0.9f, 0.5f, 0.25f,  1.0f, //6
+	-0.875f, -0.150f,-0.030f, 0.9f, 0.25f, 0.25f,  1.0f, //8
+
+	-0.875f,  0.150f, 0.000f, 0.9f, 0.25f, 0.25f,  1.0f, //3
+	-0.855f,  0.150f,-0.030f, 0.9f, 0.5f, 0.25f,  1.0f, //5
+	-0.875f,  0.150f,-0.030f, 0.9f, 0.25f, 0.25f,  1.0f, //7
+
+	-0.855f,  0.150f, 0.000f, 0.9f, 0.5f, 0.25f,  1.0f, //1
+	-0.875f,  0.150f, 0.000f, 0.9f, 0.25f, 0.25f,  1.0f, //3
+	-0.875f,  0.150f,-0.030f, 0.9f, 0.25f, 0.25f,  1.0f, //7
+
 };
 const GLfloat vertexDataRightPaddle[] = {
 	// X        Y              R     G     B      A
-	0.855f,  0.150f, 0.000f, 0.5f, 0.25f, 0.9f,  1.0f,
-	0.855f, -0.150f, 0.000f, 0.5f, 0.25f, 0.9f,  1.0f,
-	0.875f,  0.150f, 0.000f, 0.25f, 0.25f, 0.9f,  1.0f,
-	0.875f, -0.150f, 0.000f, 0.25f, 0.25f, 0.9f,  1.0f
+	0.855f,  0.150f, 0.000f, 0.5f, 0.25f, 0.9f,  1.0f, //1
+	0.855f, -0.150f, 0.000f, 0.5f, 0.25f, 0.9f,  1.0f, //2
+	0.875f,  0.150f, 0.000f, 0.25f, 0.25f, 0.9f,  1.0f, //3
+
+	0.855f, -0.150f, 0.000f, 0.5f, 0.25f, 0.9f,  1.0f, //2
+	0.875f,  0.150f, 0.000f, 0.25f, 0.25f, 0.9f,  1.0f, //3
+	0.875f, -0.150f, 0.000f, 0.25f, 0.25f, 0.9f,  1.0f, //4
+
+	0.875f,  0.150f, 0.000f, 0.25f, 0.25f, 0.9f,  1.0f, //3
+	0.875f, -0.150f, 0.000f, 0.25f, 0.25f, 0.9f,  1.0f, //4
+	0.855f, -0.150f,-0.030f, 0.5f, 0.25f, 0.9f,  1.0f, //6
+
+	0.875f,  0.150f, 0.000f, 0.25f, 0.25f, 0.9f,  1.0f, //3
+	0.855f,  0.150f,-0.030f, 0.5f, 0.25f, 0.9f,  1.0f, //5
+	0.855f, -0.150f,-0.030f, 0.5f, 0.25f, 0.9f,  1.0f, //6
+
+	0.855f,  0.150f,-0.030f, 0.5f, 0.25f, 0.9f,  1.0f, //5
+	0.855f, -0.150f,-0.030f, 0.5f, 0.25f, 0.9f,  1.0f, //6
+	0.875f,  0.150f,-0.030f, 0.25f, 0.25f, 0.9f,  1.0f, //7
+
+	0.855f, -0.150f,-0.030f, 0.5f, 0.25f, 0.9f,  1.0f, //6
+	0.875f,  0.150f,-0.030f, 0.25f, 0.25f, 0.9f,  1.0f, //7
+	0.875f, -0.150f,-0.030f, 0.25f, 0.25f, 0.9f,  1.0f, //8
+
+	0.855f,  0.150f, 0.000f, 0.5f, 0.25f, 0.9f,  1.0f, //1
+	0.855f, -0.150f, 0.000f, 0.5f, 0.25f, 0.9f,  1.0f, //2
+	0.875f, -0.150f,-0.030f, 0.25f, 0.25f, 0.9f,  1.0f, //8
+
+	0.855f,  0.150f, 0.000f, 0.5f, 0.25f, 0.9f,  1.0f, //1
+	0.875f,  0.150f,-0.030f, 0.25f, 0.25f, 0.9f,  1.0f, //7
+	0.875f, -0.150f,-0.030f, 0.25f, 0.25f, 0.9f,  1.0f, //8
+
+	0.855f, -0.150f, 0.000f, 0.5f, 0.25f, 0.9f,  1.0f, //2
+	0.875f, -0.150f, 0.000f, 0.25f, 0.25f, 0.9f,  1.0f, //4
+	0.855f, -0.150f,-0.030f, 0.5f, 0.25f, 0.9f,  1.0f, //6
+
+	0.855f, -0.150f, 0.000f, 0.5f, 0.25f, 0.9f,  1.0f, //2
+	0.855f, -0.150f,-0.030f, 0.5f, 0.25f, 0.9f,  1.0f, //6
+	0.875f, -0.150f,-0.030f, 0.25f, 0.25f, 0.9f,  1.0f, //8
+
+	0.875f,  0.150f, 0.000f, 0.25f, 0.25f, 0.9f,  1.0f, //3
+	0.855f,  0.150f,-0.030f, 0.5f, 0.25f, 0.9f,  1.0f, //5
+	0.875f,  0.150f,-0.030f, 0.25f, 0.25f, 0.9f,  1.0f, //7
+
+	0.855f,  0.150f, 0.000f, 0.5f, 0.25f, 0.9f,  1.0f, //1
+	0.875f,  0.150f, 0.000f, 0.25f, 0.25f, 0.9f,  1.0f, //3
+	0.875f,  0.150f,-0.030f, 0.25f, 0.25f, 0.9f,  1.0f, //7
 };
 const GLfloat vertexDataBall[] = {
 	// X        Y        Z     R     G     B      A
-	-0.015f,  0.015f, 0.000f, 1.0f, 1.0f, 1.0f,  1.0f,
-	-0.015f, -0.015f, 0.000f, 1.0f, 1.0f, 1.0f,  1.0f,
-	 0.015f,  0.015f, 0.000f, 1.0f, 1.0f, 1.0f,  1.0f,
-	 0.015f, -0.015f, 0.000f, 1.0f, 1.0f, 1.0f,  1.0f,
+	-0.015f, 0.015f, 0.000f, 1.0f, 0.0f, 0.0f,  1.0f, //1
+	 0.015f, 0.015f, 0.000f, 1.0f, 0.0f, 0.0f,  1.0f, //2
+	-0.015f,-0.015f, 0.000f, 0.0f, 1.0f, 0.0f,  1.0f, //3
 
-	-0.015f,  0.015f, -0.030f, 1.0f, 1.0f, 1.0f,  1.0f,
-	-0.015f, -0.015f, -0.030f, 1.0f, 1.0f, 1.0f,  1.0f,
-	 0.015f,  0.015f, -0.030f, 1.0f, 1.0f, 1.0f,  1.0f,
-	 0.015f, -0.015f, -0.030f, 1.0f, 1.0f, 1.0f,  1.0f
+	 0.015f, 0.015f, 0.000f, 1.0f, 0.0f, 0.0f,  1.0f, //2
+	-0.015f,-0.015f, 0.000f, 0.0f, 1.0f, 0.0f,  1.0f, //3
+	 0.015f,-0.015f, 0.000f, 0.0f, 1.0f, 0.0f,  1.0f, //4
+
+	-0.015f,-0.015f, 0.000f, 0.0f, 1.0f, 0.0f,  1.0f, //3
+	 0.015f,-0.015f, 0.000f, 0.0f, 1.0f, 0.0f,  1.0f, //4
+	 0.015f,-0.015f,-0.030f, 0.0f, 0.0f, 1.0f,  1.0f, //6
+
+	-0.015f,-0.015f, 0.000f, 0.0f, 1.0f, 0.0f,  1.0f, //3
+	-0.015f,-0.015f,-0.030f, 0.0f, 0.0f, 1.0f,  1.0f, //5
+	 0.015f,-0.015f,-0.030f, 0.0f, 0.0f, 1.0f,  1.0f, //6
+
+	-0.015f,-0.015f,-0.030f, 0.0f, 0.0f, 1.0f,  1.0f, //5
+	 0.015f,-0.015f,-0.030f, 0.0f, 0.0f, 1.0f,  1.0f, //6
+	-0.015f, 0.015f,-0.030f, 1.0f, 1.0f, 0.0f,  1.0f, //7
+
+	 0.015f,-0.015f,-0.030f, 0.0f, 0.0f, 1.0f,  1.0f, //6
+	-0.015f, 0.015f,-0.030f, 1.0f, 1.0f, 0.0f,  1.0f, //7
+	 0.015f, 0.015f,-0.030f, 1.0f, 1.0f, 0.0f,  1.0f, //8
+
+	-0.015f, 0.015f, 0.000f, 1.0f, 0.0f, 0.0f,  1.0f, //1
+	 0.015f, 0.015f, 0.000f, 1.0f, 0.0f, 0.0f,  1.0f, //2
+	 0.015f, 0.015f,-0.030f, 1.0f, 1.0f, 0.0f,  1.0f, //8
+
+	-0.015f, 0.015f, 0.000f, 1.0f, 0.0f, 0.0f,  1.0f, //1
+	-0.015f, 0.015f,-0.030f, 1.0f, 1.0f, 0.0f,  1.0f, //7
+	 0.015f, 0.015f,-0.030f, 1.0f, 1.0f, 0.0f,  1.0f, //8
+
+	 0.015f, 0.015f, 0.000f, 1.0f, 0.0f, 0.0f,  1.0f, //2
+	 0.015f,-0.015f, 0.000f, 0.0f, 1.0f, 0.0f,  1.0f, //4
+	 0.015f,-0.015f,-0.030f, 0.0f, 0.0f, 1.0f,  1.0f, //6
+
+	 0.015f, 0.015f, 0.000f, 1.0f, 0.0f, 0.0f,  1.0f, //2
+	 0.015f,-0.015f,-0.030f, 0.0f, 0.0f, 1.0f,  1.0f, //6
+	 0.015f, 0.015f,-0.030f, 1.0f, 1.0f, 0.0f,  1.0f, //8
+
+	-0.015f,-0.015f, 0.000f, 0.0f, 1.0f, 0.0f,  1.0f, //3
+	-0.015f,-0.015f,-0.030f, 0.0f, 0.0f, 1.0f,  1.0f, //5
+	-0.015f, 0.015f,-0.030f, 1.0f, 1.0f, 0.0f,  1.0f, //7
+
+	-0.015f, 0.015f, 0.000f, 1.0f, 0.0f, 0.0f,  1.0f, //1
+	-0.015f,-0.015f, 0.000f, 0.0f, 1.0f, 0.0f,  1.0f, //3
+	-0.015f, 0.015f,-0.030f, 1.0f, 1.0f, 0.0f,  1.0f, //7
 };
+
+int vertexOrder[36] = { 1,2,3,
+					    2,3,4,
+			    	    3,4,6,
+						3,5,6,
+						5,6,7,
+						6,7,8,
+						1,2,8,
+						1,7,8,
+						2,4,6,
+						2,6,8,
+						3,5,7,
+						1,3,7
+};
+
 const GLfloat vertexDataBoundry[] = {
 	// X        Y        Z      R     G     B      A
 	-0.990f, -0.980f, 0.500f, 0.0f, 0.0f, 0.0f,  1.0f,
@@ -139,13 +279,14 @@ const GLfloat vertexDataBoundry[] = {
 	 0.990f,  -0.980f, 0.500f, 0.0f, 0.0f, 0.0f,  1.0f,
 	 0.990f,   0.980f, 0.500f, 0.0f, 0.0f, 0.0f,  1.0f
 };
+
 GLfloat vertexDataScoreMarker[6000];
 
 //the color we'll pass to the GLSL
 GLfloat color[] = { 1.0f, 1.0f, 1.0f }; //using different values from CPU and static GLSL examples, to make it clear this is working
-GLfloat leftPaddleOffset[] = { 0.0f, 0.0f };
-GLfloat rightPaddleOffset[] = { 0.0f, 0.0f };
-GLfloat ballOffset[] = { 0.0f, 0.0f };
+GLfloat leftPaddleOffset[] = { 0.0f, 0.0f, 0.0f };
+GLfloat rightPaddleOffset[] = { 0.0f, 0.0f, 0.0f };
+GLfloat ballOffset[] = { 0.0f, 0.0f, 0.0f };
 
 // tag::GLVariables[]
 //my GL and GLSL variables
@@ -358,7 +499,6 @@ void initializeProgram()
 void initializeVertexArrayObject()
 {
 	// Left Paddle
-
 	glGenVertexArrays(1, &vertexArrayObjectLeftPaddle); //create a Vertex Array Object
 	cout << "Vertex Array Object created OK! GLUint is: " << vertexArrayObjectLeftPaddle << std::endl;
 
@@ -370,8 +510,7 @@ void initializeVertexArrayObject()
 	glVertexAttribPointer(vertexColorLocation, 4, GL_FLOAT, GL_FALSE, (7 * sizeof(GL_FLOAT)), (GLvoid *)(3 * sizeof(GLfloat))); //specify that position data contains four floats per vertex, and goes into attribute index positionLocation
 	glBindVertexArray(0); //unbind the vertexArrayObject so we can't change it
 
-						  // Right Paddle
-
+	// Right Paddle
 	glGenVertexArrays(1, &vertexArrayObjectRightPaddle);
 	cout << "Vertex Array Object created OK! GLUint is: " << vertexArrayObjectRightPaddle << std::endl;
 
@@ -384,7 +523,6 @@ void initializeVertexArrayObject()
 	glBindVertexArray(0);
 
 	// Ball
-
 	glGenVertexArrays(1, &vertexArrayObjectBall);
 	cout << "Vertex Array Object created OK! GLUint is: " << vertexArrayObjectBall << std::endl;
 
@@ -397,7 +535,6 @@ void initializeVertexArrayObject()
 	glBindVertexArray(0);
 
 	// Boundry
-
 	glGenVertexArrays(1, &vertexArrayObjectBoundry);
 	cout << "Vertex Array Object created OK! GLUint is: " << vertexArrayObjectBoundry << std::endl;
 
@@ -410,7 +547,6 @@ void initializeVertexArrayObject()
 	glBindVertexArray(0);
 
 	// Cleanup
-
 	glDisableVertexAttribArray(positionLocation); //disable vertex attribute at index positionLocation
 	glBindBuffer(GL_ARRAY_BUFFER, 0); //unbind array buffer
 
@@ -697,7 +833,7 @@ void preRender()
 {
 	glViewport(0, 0, 1000, 600); //set viewpoint
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f); //set clear colour
-	glClear(GL_COLOR_BUFFER_BIT); //clear the window (technical the scissor box bounds)
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 // end::preRender[]
 
@@ -810,33 +946,30 @@ void render()
 {
 	glUseProgram(theProgram); //installs the program object specified by program as part of current rendering state
 
-	//glEnable(GL_DEPTH_TEST);
-	//glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-
 	glm::mat4 projection;
 	projection = glm::perspective(45.0f, 1.0f, 0.1f, 100.0f);
-	glUniformMatrix4fv(projectionMatrixLocation, 1, false, glm::value_ptr(projection));
+	glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, glm::value_ptr(projection));
 
 	glm::mat4 view;
-	view = glm::lookAt(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	glUniformMatrix4fv(viewMatrixLocation, 1, false, glm::value_ptr(view));
+	view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.1, -1.7));
+	glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, glm::value_ptr(view)); 
 
 	// Boundry
-	glUniform2f(offsetLocation, 0, 0);
+	glUniform3f(offsetLocation, 0.0f, 0.0f, -0.7f);
 	glBindVertexArray(vertexArrayObjectBoundry);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindVertexArray(0);
 
 	// Left Paddle
-	glUniform2f(offsetLocation, leftPaddleOffset[0], leftPaddleOffset[1]);
+	glUniform3f(offsetLocation, leftPaddleOffset[0], leftPaddleOffset[1], leftPaddleOffset[2]);
 	glBindVertexArray(vertexArrayObjectLeftPaddle);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 36);
 	glBindVertexArray(0);
 
 	// Right Paddle
-	glUniform2f(offsetLocation, rightPaddleOffset[0], rightPaddleOffset[1]);
+	glUniform3f(offsetLocation, rightPaddleOffset[0], rightPaddleOffset[1], rightPaddleOffset[2]);
 	glBindVertexArray(vertexArrayObjectRightPaddle);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
 
 	// Ball
@@ -853,9 +986,9 @@ void render()
 	rotation = glm::translate(rotation, glm::vec3(-ballOffset[0], -ballOffset[1], 0.0f));
 	glUniformMatrix4fv(uniRotation, 1, GL_FALSE, glm::value_ptr(rotation));
 
-	glUniform2f(offsetLocation, ballOffset[0], ballOffset[1]);
+	glUniform3f(offsetLocation, ballOffset[0], ballOffset[1], ballOffset[2]);
 	glBindVertexArray(vertexArrayObjectBall);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 8);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
 
 	// Reset rotation
@@ -913,6 +1046,8 @@ int main(int argc, char* args[])
 	SDL_GL_SwapWindow(win); //force a swap, to make the trace clearer
 
 	loadAssets();
+
+	glEnable(GL_DEPTH_TEST);
 
 	while (!done) //loop until done flag is set)
 	{
