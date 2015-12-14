@@ -108,54 +108,53 @@ int playerTwoScore = 0;
 //the data about our geometry
 const GLfloat vertexDataLeftPaddle[] = {
 	// X        Y                R     G     B      A
-	-0.855f,  0.150f, 0.000f, 0.9f, 0.5f, 0.25f,  1.0f, //1
-	-0.855f, -0.150f, 0.000f, 0.9f, 0.5f, 0.25f,  1.0f, //2
+	-0.855f,  0.150f, 0.000f, 0.9f, 0.50f, 0.25f,  1.0f, //1
+	-0.855f, -0.150f, 0.000f, 0.9f, 0.50f, 0.25f,  1.0f, //2
 	-0.875f,  0.150f, 0.000f, 0.9f, 0.25f, 0.25f,  1.0f, //3
 
-	-0.855f, -0.150f, 0.000f, 0.9f, 0.5f, 0.25f,  1.0f, //2
-	-0.875f,  0.150f, 0.000f, 0.9f, 0.25f, 0.25f,  1.0f, //3
-	-0.875f, -0.150f, 0.000f, 0.9f, 0.25f, 0.25f,  1.0f, //4
-
+	-0.855f, -0.150f, 0.000f, 0.9f, 0.50f, 0.25f,  1.0f, //2
 	-0.875f,  0.150f, 0.000f, 0.9f, 0.25f, 0.25f,  1.0f, //3
 	-0.875f, -0.150f, 0.000f, 0.9f, 0.25f, 0.25f,  1.0f, //4
-	-0.855f, -0.150f,-0.030f, 0.9f, 0.5f, 0.25f,  1.0f, //6
 
 	-0.875f,  0.150f, 0.000f, 0.9f, 0.25f, 0.25f,  1.0f, //3
-	-0.855f,  0.150f,-0.030f, 0.9f, 0.5f, 0.25f,  1.0f, //5
-	-0.855f, -0.150f,-0.030f, 0.9f, 0.5f, 0.25f,  1.0f, //6
-
-	-0.855f,  0.150f,-0.030f, 0.9f, 0.5f, 0.25f,  1.0f, //5
-	-0.855f, -0.150f,-0.030f, 0.9f, 0.5f, 0.25f,  1.0f, //6
-	-0.875f,  0.150f,-0.030f, 0.9f, 0.25f, 0.25f,  1.0f, //7
-
-	-0.855f, -0.150f,-0.030f, 0.9f, 0.5f, 0.25f,  1.0f, //6
-	-0.875f,  0.150f,-0.030f, 0.9f, 0.25f, 0.25f,  1.0f, //7
-	-0.875f, -0.150f,-0.030f, 0.9f, 0.25f, 0.25f,  1.0f, //8
-
-	-0.855f,  0.150f, 0.000f, 0.9f, 0.5f, 0.25f,  1.0f, //1
-	-0.855f, -0.150f, 0.000f, 0.9f, 0.5f, 0.25f,  1.0f, //2
-	-0.875f, -0.150f,-0.030f, 0.9f, 0.25f, 0.25f,  1.0f, //8
-
-	-0.855f,  0.150f, 0.000f, 0.9f, 0.5f, 0.25f,  1.0f, //1
-	-0.875f,  0.150f,-0.030f, 0.9f, 0.25f, 0.25f,  1.0f, //7
-	-0.875f, -0.150f,-0.030f, 0.9f, 0.25f, 0.25f,  1.0f, //8
-
-	-0.855f, -0.150f, 0.000f, 0.9f, 0.5f, 0.25f,  1.0f, //2
 	-0.875f, -0.150f, 0.000f, 0.9f, 0.25f, 0.25f,  1.0f, //4
-	-0.855f, -0.150f,-0.030f, 0.9f, 0.5f, 0.25f,  1.0f, //6
+	-0.855f, -0.150f,-0.030f, 0.9f, 0.50f, 0.25f,  1.0f, //6
 
-	-0.855f, -0.150f, 0.000f, 0.9f, 0.5f, 0.25f,  1.0f, //2
-	-0.855f, -0.150f,-0.030f, 0.9f, 0.5f, 0.25f,  1.0f, //6
+	-0.875f,  0.150f, 0.000f, 0.9f, 0.25f, 0.25f,  1.0f, //3
+	-0.855f,  0.150f,-0.030f, 0.9f, 0.50f, 0.25f,  1.0f, //5
+	-0.855f, -0.150f,-0.030f, 0.9f, 0.50f, 0.25f,  1.0f, //6
+
+	-0.855f,  0.150f,-0.030f, 0.9f, 0.50f, 0.25f,  1.0f, //5
+	-0.855f, -0.150f,-0.030f, 0.9f, 0.50f, 0.25f,  1.0f, //6
+	-0.875f,  0.150f,-0.030f, 0.9f, 0.25f, 0.25f,  1.0f, //7
+
+	-0.855f, -0.150f,-0.030f, 0.9f, 0.50f, 0.25f,  1.0f, //6
+	-0.875f,  0.150f,-0.030f, 0.9f, 0.25f, 0.25f,  1.0f, //7
+	-0.875f, -0.150f,-0.030f, 0.9f, 0.25f, 0.25f,  1.0f, //8
+
+	-0.855f,  0.150f, 0.000f, 0.9f, 0.50f, 0.25f,  1.0f, //1
+	-0.855f, -0.150f, 0.000f, 0.9f, 0.50f, 0.25f,  1.0f, //2
+	-0.875f, -0.150f,-0.030f, 0.9f, 0.25f, 0.25f,  1.0f, //8
+
+	-0.855f,  0.150f, 0.000f, 0.9f, 0.50f, 0.25f,  1.0f, //1
+	-0.875f,  0.150f,-0.030f, 0.9f, 0.25f, 0.25f,  1.0f, //7
+	-0.875f, -0.150f,-0.030f, 0.9f, 0.25f, 0.25f,  1.0f, //8
+
+	-0.855f, -0.150f, 0.000f, 0.9f, 0.50f, 0.25f,  1.0f, //2
+	-0.875f, -0.150f, 0.000f, 0.9f, 0.25f, 0.25f,  1.0f, //4
+	-0.855f, -0.150f,-0.030f, 0.9f, 0.50f, 0.25f,  1.0f, //6
+
+	-0.855f, -0.150f, 0.000f, 0.9f, 0.50f, 0.25f,  1.0f, //2
+	-0.855f, -0.150f,-0.030f, 0.9f, 0.50f, 0.25f,  1.0f, //6
 	-0.875f, -0.150f,-0.030f, 0.9f, 0.25f, 0.25f,  1.0f, //8
 
 	-0.875f,  0.150f, 0.000f, 0.9f, 0.25f, 0.25f,  1.0f, //3
-	-0.855f,  0.150f,-0.030f, 0.9f, 0.5f, 0.25f,  1.0f, //5
+	-0.855f,  0.150f,-0.030f, 0.9f, 0.50f, 0.25f,  1.0f, //5
 	-0.875f,  0.150f,-0.030f, 0.9f, 0.25f, 0.25f,  1.0f, //7
 
-	-0.855f,  0.150f, 0.000f, 0.9f, 0.5f, 0.25f,  1.0f, //1
+	-0.855f,  0.150f, 0.000f, 0.9f, 0.50f, 0.25f,  1.0f, //1
 	-0.875f,  0.150f, 0.000f, 0.9f, 0.25f, 0.25f,  1.0f, //3
-	-0.875f,  0.150f,-0.030f, 0.9f, 0.25f, 0.25f,  1.0f, //7
-
+	-0.875f,  0.150f,-0.030f, 0.9f, 0.25f, 0.25f,  1.0f  //7
 };
 const GLfloat vertexDataRightPaddle[] = {
 	// X        Y              R     G     B      A
@@ -205,7 +204,7 @@ const GLfloat vertexDataRightPaddle[] = {
 
 	0.855f,  0.150f, 0.000f, 0.5f, 0.25f, 0.9f,  1.0f, //1
 	0.875f,  0.150f, 0.000f, 0.25f, 0.25f, 0.9f,  1.0f, //3
-	0.875f,  0.150f,-0.030f, 0.25f, 0.25f, 0.9f,  1.0f, //7
+	0.875f,  0.150f,-0.030f, 0.25f, 0.25f, 0.9f,  1.0f //7
 };
 const GLfloat vertexDataBall[] = {
 	// X        Y        Z     R     G     B      A
@@ -947,11 +946,11 @@ void render()
 	glUseProgram(theProgram); //installs the program object specified by program as part of current rendering state
 
 	glm::mat4 projection;
-	projection = glm::perspective(45.0f, 1.0f, 0.1f, 100.0f);
+	projection = glm::perspective(45.0f, 1.0f, 0.1f, 150.0f);
 	glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, glm::value_ptr(projection));
 
 	glm::mat4 view;
-	view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.0, -1.65));
+	view = glm::lookAt(glm::vec3(0,-1.5,2), glm::vec3(0,0.5,-3), glm::vec3(0,0,1));
 	glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, glm::value_ptr(view)); 
 
 	// Boundry
@@ -969,7 +968,7 @@ void render()
 	// Right Paddle
 	glUniform3f(offsetLocation, rightPaddleOffset[0], rightPaddleOffset[1], rightPaddleOffset[2]);
 	glBindVertexArray(vertexArrayObjectRightPaddle);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 36);
 	glBindVertexArray(0);
 
 	// Ball
@@ -994,6 +993,11 @@ void render()
 	// Reset rotation
 	rotation = glm::mat4();
 	glUniformMatrix4fv(uniRotation, 1, GL_FALSE, glm::value_ptr(rotation));
+
+	//Drawing 2D HUD
+	glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0)));
+	glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+
 
 	// Render Player One Score Markers
 	for (int i = 0; i < playerOneScore; i++)
