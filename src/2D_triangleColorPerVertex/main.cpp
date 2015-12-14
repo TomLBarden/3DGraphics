@@ -895,7 +895,7 @@ void renderScoreMarker(float rightX, float modifier)
 	glGenBuffers(1, &tempVertexDataBufferObject);
 
 	// Stops marker inheriting offset values
-	glUniform2f(offsetLocation, 0, 0);
+	glUniform3f(offsetLocation, 0, 0, 0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, tempVertexDataBufferObject);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexDataScoreMarker), vertexDataScoreMarker, GL_STATIC_DRAW);
@@ -951,7 +951,7 @@ void render()
 	glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, glm::value_ptr(projection));
 
 	glm::mat4 view;
-	view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.1, -1.7));
+	view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.0, -1.65));
 	glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, glm::value_ptr(view)); 
 
 	// Boundry
