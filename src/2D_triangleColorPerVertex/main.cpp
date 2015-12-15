@@ -101,8 +101,8 @@ bool kDown = false;
 bool jDown = false;
 bool lDown = false;
 
-glm::vec3 cameraIncrementX(0.005, 0, 0);
-glm::vec3 cameraIncrementY(0, 0.005, 0);
+glm::vec3 cameraIncrementX(0.025, 0, 0);
+glm::vec3 cameraIncrementY(0, 0.025, 0);
 float incrementValue = 0.005f;
 float ballYDirection = 0.000f;
 float rotateAngle = 0.000f;
